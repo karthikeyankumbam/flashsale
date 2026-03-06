@@ -8,16 +8,19 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
+
   flyway:
     enabled: true
+
+server:
+  port: 8086
+
 management:
   endpoints:
     web:
       exposure:
         include: health,info,metrics,prometheus
 
-server:
-  port: 8086
 security:
   jwt:
     issuer: flashsale-auth
