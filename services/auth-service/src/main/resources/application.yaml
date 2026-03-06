@@ -8,10 +8,8 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
-
   flyway:
     enabled: true
-
 management:
   endpoints:
     web:
@@ -20,3 +18,8 @@ management:
 
 server:
   port: 8086
+security:
+  jwt:
+    issuer: flashsale-auth
+    secret: "CHANGE_ME_TO_A_LONG_RANDOM_SECRET_32+_CHARS"
+    accessTokenTtlMinutes: 60

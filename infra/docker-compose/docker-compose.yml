@@ -1,0 +1,20 @@
+services:
+  auth-postgres:
+    image: postgres:16
+    container_name: flashsale-auth-postgres
+    environment:
+      POSTGRES_DB: auth
+      POSTGRES_USER: auth
+      POSTGRES_PASSWORD: auth
+    ports:
+      - "5432:5432"
+    volumes:
+      - auth_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U auth -d auth"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  auth_pg_data:
