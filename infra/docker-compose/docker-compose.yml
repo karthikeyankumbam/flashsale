@@ -16,5 +16,16 @@ services:
       timeout: 3s
       retries: 20
 
+  catalog-mongo:
+    image: mongo:7
+    container_name: flashsale-catalog-mongo
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: catalog
+    volumes:
+      - catalog_mongo_data:/data/db
+
 volumes:
   auth_pg_data:
+  catalog_mongo_data:

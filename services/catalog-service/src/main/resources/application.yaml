@@ -1,3 +1,15 @@
+server:
+  port: 8085
+
 spring:
   application:
-    name: catalog
+    name: catalog-service
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/catalog
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
