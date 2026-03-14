@@ -8,6 +8,12 @@ spring:
     mongodb:
       uri: mongodb://localhost:27017/catalog
 
+security:
+  jwt:
+    issuer: flashsale-auth
+    secret: "4adc46d0108bffc85f56acf526af842017b3ad6996476b28643ea3ae7c0c5210"
+    accessTokenTtlMinutes: 60
+
 management:
   endpoints:
     web:

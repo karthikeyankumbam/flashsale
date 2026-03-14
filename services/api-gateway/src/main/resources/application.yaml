@@ -2,8 +2,6 @@ server:
   port: 8080
 
 spring:
-  application:
-    name: api-gateway
   cloud:
     gateway:
       server:
@@ -13,6 +11,14 @@ spring:
               uri: http://localhost:8086
               predicates:
                 - Path=/auth/**
+            - id: catalog
+              uri: http://localhost:8085
+              predicates:
+                - Path=/products/**
+            - id: cart
+              uri: http://localhost:8084
+              predicates:
+                - Path=/cart/**
 
 management:
   endpoints:

@@ -26,6 +26,16 @@ services:
     volumes:
       - catalog_mongo_data:/data/db
 
+  cart-redis:
+    image: redis:7
+    container_name: flashsale-cart-redis
+    ports:
+      - "6379:6379"
+    command: [ "redis-server", "--appendonly", "yes" ]
+    volumes:
+      - cart_redis_data:/data
+
 volumes:
   auth_pg_data:
   catalog_mongo_data:
+  cart_redis_data:
