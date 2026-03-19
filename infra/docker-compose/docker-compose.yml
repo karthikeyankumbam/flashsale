@@ -35,7 +35,25 @@ services:
     volumes:
       - cart_redis_data:/data
 
+  order-postgres:
+    image: postgres:16
+    container_name: flashsale-order-postgres
+    environment:
+      POSTGRES_DB: orders
+      POSTGRES_USER: orders
+      POSTGRES_PASSWORD: orders
+    ports:
+      - "5433:5432"
+    volumes:
+      - order_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U orders -d orders" ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
 volumes:
   auth_pg_data:
   catalog_mongo_data:
   cart_redis_data:
+  order_pg_data:
