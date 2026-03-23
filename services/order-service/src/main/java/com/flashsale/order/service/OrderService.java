@@ -30,33 +30,53 @@ public class OrderService {
 
     @Transactional
     public OrderEntity createOrder(String userId, String idempotencyKey, CreateOrderRequest req) {
-        // idempotency: return existing if already created
+        // 1) Idempotency: return existing order if this key was already used by this user
         var existing = orderRepo.findByUserIdAndIdempotencyKey(userId, idempotencyKey);
         if (existing.isPresent()) return existing.get();
 
+        // 2) Create new order
         OrderEntity order = new OrderEntity(userId, req.currency(), idempotencyKey);
 
+        // 3) Add items + compute total
         long total = 0;
+        var eventItems = new java.util.ArrayList<com.flashsale.order.events.OrderCreatedEvent.Item>();
+
         for (CreateOrderRequest.Item i : req.items()) {
-            OrderItemEntity item = new OrderItemEntity(i.sku(), i.qty(), i.unitPrice());
-            order.addItem(item);
+            // Persist item in DB
+            OrderItemEntity itemEntity = new OrderItemEntity(i.sku(), i.qty(), i.unitPrice());
+            order.addItem(itemEntity);
+
+            // total
             total += (long) i.qty() * i.unitPrice();
+
+            // event item (for Kafka consumer)
+            eventItems.add(new com.flashsale.order.events.OrderCreatedEvent.Item(i.sku(), i.qty(), i.unitPrice()));
         }
+
         order.setTotalAmount(total);
 
+        // 4) Save order (cascades items)
         OrderEntity saved = orderRepo.save(order);
 
-        // outbox: OrderCreated
-        saveOutbox(saved.getId(), "OrderCreated", Map.of(
-                "orderId", saved.getId().toString(),
-                "userId", userId,
-                "total", total,
-                "currency", req.currency()
-        ));
+        // 5) Write outbox event (Kafka publish happens in OutboxProcessor)
+        try {
+            var event = new com.flashsale.order.events.OrderCreatedEvent(
+                    saved.getId().toString(),
+                    userId,
+                    eventItems,
+                    total,
+                    req.currency()
+            );
+
+            String json = objectMapper.writeValueAsString(event);
+            outboxRepo.save(new OutboxEventEntity("ORDER", saved.getId(), "OrderCreated", json));
+        } catch (Exception e) {
+            // Fail transaction so we don't end up with an order without its outbox event
+            throw new IllegalStateException("Failed to serialize OrderCreated outbox payload", e);
+        }
 
         return saved;
     }
-
     @Transactional(readOnly = true)
     public OrderEntity getOrder(String userId, UUID orderId) {
         // simple ownership check (since no JWT yet)

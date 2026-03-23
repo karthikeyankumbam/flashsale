@@ -52,8 +52,50 @@ services:
       timeout: 3s
       retries: 20
 
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.1
+    container_name: flashsale-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.1
+    container_name: flashsale-kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  inventory-postgres:
+    image: postgres:16
+    container_name: flashsale-inventory-postgres
+    environment:
+      POSTGRES_DB: inventory
+      POSTGRES_USER: inventory
+      POSTGRES_PASSWORD: inventory
+    ports:
+      - "5434:5432"
+    volumes:
+      - inventory_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U inventory -d inventory" ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
 volumes:
   auth_pg_data:
   catalog_mongo_data:
   cart_redis_data:
   order_pg_data:
+  kafka_data:
+  inventory_pg_data:
