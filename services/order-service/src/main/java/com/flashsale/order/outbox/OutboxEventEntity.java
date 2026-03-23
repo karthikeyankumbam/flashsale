@@ -25,7 +25,16 @@ public class OutboxEventEntity {
     private String payloadJson;
 
     @Column(nullable = false, length = 16)
-    private String status = "NEW";
+    private String status = "NEW"; // NEW, SENT, FAILED
+
+    @Column(name = "attempt_count", nullable = false)
+    private int attemptCount = 0;
+
+    @Column(name = "last_error", columnDefinition = "text")
+    private String lastError;
+
+    @Column(name = "sent_at")
+    private Instant sentAt;
 
     @Column(name = "created_at", nullable = false)
     private Instant createdAt = Instant.now();
@@ -40,4 +49,24 @@ public class OutboxEventEntity {
     }
 
     public UUID getId() { return id; }
+    public String getEventType() { return eventType; }
+    public String getPayloadJson() { return payloadJson; }
+    public String getStatus() { return status; }
+    public Instant getCreatedAt() { return createdAt; }
+
+    public void markSent() {
+        this.status = "SENT";
+        this.sentAt = Instant.now();
+        this.lastError = null;
+    }
+
+    public void markFailed(String error) {
+        this.status = "FAILED";
+        this.lastError = error;
+    }
+
+    public void incrementAttempt(String error) {
+        this.attemptCount++;
+        this.lastError = error;
+    }
 }

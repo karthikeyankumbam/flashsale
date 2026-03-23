@@ -4,13 +4,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flashsale.order.api.dto.CreateOrderRequest;
 import com.flashsale.order.domain.OrderEntity;
 import com.flashsale.order.domain.OrderItemEntity;
+import com.flashsale.order.domain.OrderStatus;
+import com.flashsale.order.outbox.OutboxEventEntity;
 import com.flashsale.order.repo.OrderRepository;
 import com.flashsale.order.repo.OutboxRepository;
-import com.flashsale.order.outbox.OutboxEventEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class OrderService {
@@ -43,28 +46,58 @@ public class OrderService {
 
         OrderEntity saved = orderRepo.save(order);
 
-        // Outbox event (Kafka publish later)
-        try {
-            var payload = Map.of(
-                    "orderId", saved.getId().toString(),
-                    "userId", userId,
-                    "total", total,
-                    "currency", req.currency()
-            );
-            String json = objectMapper.writeValueAsString(payload);
-            outboxRepo.save(new OutboxEventEntity("ORDER", saved.getId(), "OrderCreated", json));
-        } catch (Exception e) {
-            throw new IllegalStateException("Failed to serialize outbox payload", e);
-        }
+        // outbox: OrderCreated
+        saveOutbox(saved.getId(), "OrderCreated", Map.of(
+                "orderId", saved.getId().toString(),
+                "userId", userId,
+                "total", total,
+                "currency", req.currency()
+        ));
 
         return saved;
     }
 
-    public OrderEntity getOrder(String userId, java.util.UUID orderId) {
+    @Transactional(readOnly = true)
+    public OrderEntity getOrder(String userId, UUID orderId) {
         // simple ownership check (since no JWT yet)
         OrderEntity o = orderRepo.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("Order not found: " + orderId));
         if (!o.getUserId().equals(userId)) throw new IllegalArgumentException("Order not found");
         return o;
+    }
+
+    @Transactional(readOnly = true)
+    public List<OrderEntity> listOrders(String userId) {
+        return orderRepo.findByUserIdOrderByCreatedAtDesc(userId);
+    }
+
+    @Transactional
+    public OrderEntity cancelOrder(String userId, UUID orderId, String reason) {
+        OrderEntity o = getOrder(userId, orderId);
+
+        if (o.getStatus() == OrderStatus.CANCELLED) return o;
+        if (o.getStatus() == OrderStatus.CONFIRMED) {
+            // for now, block cancel after confirm (later we can support refunds/compensations)
+            throw new IllegalArgumentException("Cannot cancel a confirmed order");
+        }
+
+        o.setStatus(OrderStatus.CANCELLED);
+        OrderEntity saved = orderRepo.save(o);
+
+        saveOutbox(saved.getId(), "OrderCancelled", Map.of(
+                "orderId", saved.getId().toString(),
+                "userId", userId,
+                "reason", reason == null ? "" : reason
+        ));
+        return saved;
+    }
+
+    private void saveOutbox(UUID orderId, String eventType, Map<String, Object> payload) {
+        try {
+            String json = objectMapper.writeValueAsString(payload);
+            outboxRepo.save(new OutboxEventEntity("ORDER", orderId, eventType, json));
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to serialize outbox payload", e);
+        }
     }
 }

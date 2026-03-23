@@ -7,6 +7,7 @@ import com.flashsale.order.service.OrderService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -35,5 +36,19 @@ public class OrderController {
             @PathVariable UUID orderId
     ) {
         return service.getOrder(userId, orderId);
+    }
+
+    @GetMapping
+    public List<OrderEntity> list(@RequestHeader("X-User-Id") String userId) {
+        return service.listOrders(userId);
+    }
+
+    @PostMapping("/{orderId}/cancel")
+    public OrderEntity cancel(
+            @RequestHeader("X-User-Id") String userId,
+            @PathVariable UUID orderId,
+            @RequestParam(required = false) String reason
+    ) {
+        return service.cancelOrder(userId, orderId, reason);
     }
 }
