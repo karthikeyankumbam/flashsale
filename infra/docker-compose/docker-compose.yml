@@ -93,6 +93,23 @@ services:
       timeout: 3s
       retries: 20
 
+  payment-postgres:
+    image: postgres:16
+    container_name: flashsale-payment-postgres
+    environment:
+      POSTGRES_DB: payment
+      POSTGRES_USER: payment
+      POSTGRES_PASSWORD: payment
+    ports:
+      - "5435:5432"
+    volumes:
+      - payment_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U payment -d payment" ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
 volumes:
   auth_pg_data:
   catalog_mongo_data:
@@ -100,3 +117,4 @@ volumes:
   order_pg_data:
   kafka_data:
   inventory_pg_data:
+  payment_pg_data:
