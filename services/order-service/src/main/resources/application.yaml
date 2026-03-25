@@ -20,6 +20,9 @@ spring:
       auto-offset-reset: earliest
       properties:
         spring.json.trusted.packages: "com.flashsale.order.events"
+    producer:
+      properties:
+        spring.json.add.type.headers: false
 
 management:
   endpoints:

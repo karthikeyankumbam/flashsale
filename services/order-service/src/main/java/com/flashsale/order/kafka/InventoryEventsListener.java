@@ -27,7 +27,11 @@ public class InventoryEventsListener {
         this.objectMapper = objectMapper;
     }
 
-    @KafkaListener(topics = "flashsale.inventory.events", groupId = "order-service")
+    @KafkaListener(
+            topics = "flashsale.inventory.events",
+            groupId = "order-service",
+            containerFactory = "inventoryResultKafkaListenerContainerFactory"
+    )
     @Transactional
     public void onInventoryResult(InventoryResultEvent event) {
         UUID orderId = UUID.fromString(event.orderId());

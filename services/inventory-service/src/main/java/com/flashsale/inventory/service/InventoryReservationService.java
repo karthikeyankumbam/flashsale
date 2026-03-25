@@ -30,8 +30,9 @@ public class InventoryReservationService {
 
         // reserve each item (simple version)
         for (OrderCreatedEvent.Item item : event.items()) {
-            var inv = inventoryRepo.findById(item.sku())
+            var inv = inventoryRepo.findBySkuForUpdate(item.sku())
                     .orElseThrow(() -> new IllegalArgumentException("SKU not found in inventory: " + item.sku()));
+
             inv.reserve(item.qty());
             inventoryRepo.save(inv);
         }

@@ -23,6 +23,10 @@ spring:
               uri: http://localhost:8081
               predicates:
                 - Path=/orders/**
+            - id: inventory
+              uri: http://localhost:8081
+              predicates:
+                - Path=/inventory/**
 
 management:
   endpoints:
