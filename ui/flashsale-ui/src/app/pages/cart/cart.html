@@ -1,32 +1,57 @@
-<h2>Cart</h2>
+<div class="header">
+  <div>
+    <h2>Cart</h2>
+    <div class="sub">User: {{ userId }}</div>
+  </div>
 
-<div class="card">
-  <div>User: <b>{{userId}}</b></div>
-  <div style="margin-top:8px; color:#0a0">{{msg}}</div>
-  <div style="margin-top:8px;" class="row">
-    <button class="btn" (click)="refresh()">Refresh</button>
-    <button class="btn" (click)="clear()">Clear cart</button>
-    <a class="btn primary" routerLink="/checkout">Go to checkout</a>
+  <div class="actions">
+    <button mat-stroked-button (click)="refresh()">Refresh</button>
+    <button mat-stroked-button (click)="clear()" [disabled]="!hasItems()">Clear</button>
+    <a mat-raised-button color="primary" routerLink="/checkout" [class.disabled]="!hasItems()">Checkout</a>
   </div>
 </div>
 
-<div *ngIf="!cart">Loading...</div>
+<div class="center" *ngIf="loading">
+  <mat-spinner diameter="36"></mat-spinner>
+</div>
 
-<div *ngIf="cart && cart.items.length === 0" class="card">
+<mat-card *ngIf="!loading && cart && cart.items.length === 0" class="empty">
   Cart is empty. Go to <a routerLink="/products">Products</a>.
-</div>
+</mat-card>
 
-<div *ngFor="let item of cart?.items" class="card">
-  <div class="row">
-    <div>
-      <div><b>{{item.sku}}</b></div>
-      <div style="color:#666">Qty: {{item.qty}}</div>
-    </div>
+<mat-card *ngIf="!loading && cart && cart.items.length > 0" class="tableCard">
+  <table mat-table [dataSource]="cart.items" class="mat-elevation-z0 full">
 
-    <div class="row" style="gap:8px;">
-      <input type="number" min="1" [ngModel]="item.qty"
-             (ngModelChange)="setQty(item.sku, $event)" style="width:80px; padding:6px;" />
-      <button class="btn" (click)="remove(item.sku)">Remove</button>
-    </div>
-  </div>
-</div>
+    <ng-container matColumnDef="sku">
+      <th mat-header-cell *matHeaderCellDef>SKU</th>
+      <td mat-cell *matCellDef="let i">
+        <div class="sku">{{ i.sku }}</div>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="qty">
+      <th mat-header-cell *matHeaderCellDef>Qty</th>
+      <td mat-cell *matCellDef="let i">
+        <div class="qty">
+          <button mat-icon-button (click)="dec(i.sku, i.qty)" [disabled]="i.qty <= 1">
+            <mat-icon>remove</mat-icon>
+          </button>
+          <span class="qtyNum">{{ i.qty }}</span>
+          <button mat-icon-button (click)="inc(i.sku, i.qty)">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let i" class="right">
+        <button mat-stroked-button color="warn" (click)="remove(i.sku)">Remove</button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+</mat-card>

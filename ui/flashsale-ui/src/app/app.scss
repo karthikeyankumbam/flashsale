@@ -1,0 +1,24 @@
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.brand {
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+}
+
+.spacer { flex: 1; }
+
+.container {
+  padding: 20px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+a.active {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+}

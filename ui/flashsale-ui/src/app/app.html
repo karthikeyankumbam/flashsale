@@ -1,9 +1,12 @@
-<nav class="nav">
-  <a routerLink="/products">Products</a>
-  <a routerLink="/cart">Cart</a>
-  <a routerLink="/checkout">Checkout</a>
-  <a routerLink="/orders">Orders</a>
-</nav>
+<mat-toolbar color="primary" class="topbar">
+  <div class="brand" routerLink="/products">FlashSale</div>
+  <span class="spacer"></span>
+
+  <a mat-button routerLink="/products" routerLinkActive="active">Products</a>
+  <a mat-button routerLink="/cart" routerLinkActive="active">Cart</a>
+  <a mat-button routerLink="/checkout" routerLinkActive="active">Checkout</a>
+  <a mat-button routerLink="/orders" routerLinkActive="active">Orders</a>
+</mat-toolbar>
 
 <main class="container">
   <router-outlet></router-outlet>

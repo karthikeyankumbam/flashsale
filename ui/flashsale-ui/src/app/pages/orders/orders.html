@@ -1,47 +1,50 @@
-<h2>Orders</h2>
+<div class="header">
+  <div>
+    <h2>Orders</h2>
+    <div class="sub">User: {{ userId }}</div>
+  </div>
 
-<div class="card">
-  <div>User: <b>{{userId}}</b></div>
-  <div style="margin-top:8px; color:#c00" *ngIf="msg">{{msg}}</div>
-
-  <div class="row" style="margin-top:8px;">
-    <button class="btn" (click)="refresh()">Refresh</button>
-    <a class="btn" routerLink="/products">Shop more</a>
+  <div class="actions">
+    <button mat-stroked-button (click)="refresh()">Refresh</button>
+    <a mat-stroked-button routerLink="/products">Shop</a>
   </div>
 </div>
 
-<div *ngIf="lastOrderId" class="card">
+<div class="center" *ngIf="loading">
+  <mat-spinner diameter="36"></mat-spinner>
+</div>
+
+<mat-card *ngIf="lastOrderId" class="last">
   <div class="row">
     <div>
-      <div style="color:#666">Last Order</div>
-      <div><b>{{lastOrderId}}</b></div>
+      <div class="meta">Last Order</div>
+      <div class="id">{{ lastOrderId }}</div>
     </div>
-    <div *ngIf="lastOrder">
-      <span [class]="badgeClass(lastOrder.status)">{{lastOrder.status}}</span>
-    </div>
+    <mat-chip *ngIf="lastOrder" [color]="chipColor(lastOrder.status)" selected>
+      {{ lastOrder.status }}
+    </mat-chip>
   </div>
 
-  <div *ngIf="lastOrder" style="margin-top:10px; color:#444;">
-    Total: <b>{{lastOrder.totalAmount}}</b> {{lastOrder.currency}}
+  <div *ngIf="lastOrder" class="meta" style="margin-top:10px;">
+    Total: <b>{{ lastOrder.totalAmount }}</b> {{ lastOrder.currency }}
   </div>
-</div>
+</mat-card>
 
-<div *ngIf="orders.length === 0" class="card">
+<mat-card *ngIf="!loading && orders.length === 0" class="empty">
   No orders yet.
-</div>
+</mat-card>
 
-<div *ngFor="let o of orders" class="card">
-  <div class="row">
-    <div>
-      <div><b>{{o.id}}</b></div>
-      <div style="color:#666">
-        <span [class]="badgeClass(o.status)">{{o.status}}</span>
+<div class="list" *ngIf="!loading && orders.length > 0">
+  <mat-card class="order" *ngFor="let o of orders">
+    <div class="row">
+      <div>
+        <div class="id">{{ o.id }}</div>
+        <div class="meta">Total: {{ o.totalAmount }} {{ o.currency }}</div>
       </div>
-      <div style="color:#666">Total: {{o.totalAmount}} {{o.currency}}</div>
+      <div class="right">
+        <mat-chip [color]="chipColor(o.status)" selected>{{ o.status }}</mat-chip>
+        <div *ngIf="o.id === lastOrderId" class="latest">Latest</div>
+      </div>
     </div>
-
-    <div *ngIf="o.id === lastOrderId">
-      <span class="badge latest">Latest</span>
-    </div>
-  </div>
+  </mat-card>
 </div>

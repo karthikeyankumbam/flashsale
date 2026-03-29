@@ -1,39 +1,40 @@
-<h2>Checkout</h2>
+<div class="header">
+  <div>
+    <h2>Checkout</h2>
+    <div class="sub">User: {{ userId }}</div>
+  </div>
 
-<div class="card">
-  <div>User: <b>{{userId}}</b></div>
-  <div style="margin-top:8px; color:#0a0">{{msg}}</div>
-  <div class="row" style="margin-top:8px;">
-    <button class="btn" (click)="loadCart()">Refresh</button>
-    <a class="btn" routerLink="/cart">Back to cart</a>
-    <button class="btn primary" [disabled]="placing" (click)="placeOrder()">Place Order</button>
+  <div class="actions">
+    <button mat-stroked-button (click)="load()">Refresh</button>
+    <a mat-stroked-button routerLink="/cart">Back</a>
+    <button mat-raised-button color="primary" (click)="placeOrder()" [disabled]="placing || !hasItems()">
+      Place Order
+    </button>
   </div>
 </div>
 
-<div *ngIf="!cart">Loading...</div>
+<div class="center" *ngIf="loading">
+  <mat-spinner diameter="36"></mat-spinner>
+</div>
 
-<div *ngIf="cart && cart.items.length === 0" class="card">
+<mat-card *ngIf="!loading && cart && cart.items.length === 0" class="empty">
   Cart is empty. Go to <a routerLink="/products">Products</a>.
-</div>
+</mat-card>
 
-<div *ngFor="let item of cart?.items" class="card">
-  <div class="row">
+<mat-card *ngIf="!loading && cart && cart.items.length > 0" class="summary">
+  <div class="line" *ngFor="let i of cart.items">
     <div>
-      <div><b>{{item.sku}}</b></div>
-      <div style="color:#666">Qty: {{item.qty}}</div>
+      <div class="name">{{ prices[i.sku]?.name || i.sku }}</div>
+      <div class="meta">{{ i.sku }} • Qty {{ i.qty }}</div>
     </div>
-    <div>
-      <div *ngIf="prices[item.sku]">
-        {{prices[item.sku].unitPrice}} {{prices[item.sku].currency}}
-      </div>
-      <div *ngIf="!prices[item.sku]" style="color:#c00">Loading price…</div>
+    <div class="price" *ngIf="prices[i.sku]">
+      {{ prices[i.sku].unitPrice * i.qty }} {{ prices[i.sku].currency }}
     </div>
+    <div class="meta" *ngIf="!prices[i.sku]">Loading price…</div>
   </div>
-</div>
 
-<div *ngIf="cart && cart.items.length > 0" class="card">
-  <div class="row">
-    <div><b>Total</b></div>
-    <div><b>{{total()}}</b></div>
+  <div class="total">
+    <div>Total</div>
+    <div class="price">{{ total() }} {{ currency() }}</div>
   </div>
-</div>
+</mat-card>

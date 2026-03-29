@@ -1,25 +1,33 @@
 import { Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { OrdersService } from '../../core/orders.service';
-import { getUserId } from '../../core/user';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { interval, Subscription } from 'rxjs';
+
+import { OrdersService } from '../../core/orders.service';
+import { getUserId } from '../../core/user';
+
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-orders',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [
+    CommonModule, RouterModule,
+    MatCardModule, MatButtonModule, MatChipsModule, MatProgressSpinnerModule
+  ],
   templateUrl: './orders.html',
   styleUrl: './orders.scss',
 })
 export class OrdersComponent implements OnDestroy {
   userId = getUserId();
-
   orders: any[] = [];
   lastOrderId: string | null = null;
   lastOrder: any | null = null;
 
-  msg = '';
+  loading = false;
   private sub?: Subscription;
 
   constructor(private ordersSvc: OrdersService, private route: ActivatedRoute) {
@@ -28,7 +36,6 @@ export class OrdersComponent implements OnDestroy {
       this.refresh();
     });
 
-    // Auto refresh every 2 seconds
     this.sub = interval(2000).subscribe(() => this.refresh(false));
   }
 
@@ -36,13 +43,14 @@ export class OrdersComponent implements OnDestroy {
     this.sub?.unsubscribe();
   }
 
-  refresh(showMsg = true) {
+  refresh(showSpinner = true) {
+    if (showSpinner) this.loading = true;
+
     this.ordersSvc.listOrders(this.userId).subscribe({
       next: (res) => {
         this.orders = res ?? [];
-        if (showMsg) this.msg = '';
+        if (showSpinner) this.loading = false;
 
-        // If we have a last order id, load its latest snapshot
         if (this.lastOrderId) {
           this.ordersSvc.getOrder(this.userId, this.lastOrderId).subscribe({
             next: (o) => this.lastOrder = o,
@@ -50,19 +58,15 @@ export class OrdersComponent implements OnDestroy {
           });
         }
       },
-      error: () => {
-        if (showMsg) this.msg = 'Failed to load orders';
-      }
+      error: () => { if (showSpinner) this.loading = false; }
     });
   }
 
-  badgeClass(status: string) {
+  chipColor(status: string): 'primary' | 'accent' | 'warn' | undefined {
     const s = (status || '').toUpperCase();
-    if (s === 'PAID') return 'badge paid';
-    if (s === 'PAYMENT_PENDING') return 'badge pending';
-    if (s === 'PENDING') return 'badge pending';
-    if (s === 'CANCELLED') return 'badge cancelled';
-    if (s === 'CONFIRMED') return 'badge confirmed';
-    return 'badge';
+    if (s === 'PAID') return 'primary';
+    if (s === 'PAYMENT_PENDING' || s === 'PENDING' || s === 'CONFIRMED') return 'accent';
+    if (s === 'CANCELLED') return 'warn';
+    return undefined;
   }
 }

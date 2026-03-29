@@ -1,0 +1,26 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.sub { color: #666; font-size: 13px; margin-top: 4px; }
+
+.actions { display: flex; gap: 10px; align-items: center; }
+
+.center { display: flex; justify-content: center; padding: 30px 0; }
+
+.empty, .tableCard { border-radius: 16px; }
+
+.full { width: 100%; }
+
+.sku { font-weight: 600; }
+
+.qty { display: inline-flex; align-items: center; gap: 8px; }
+.qtyNum { width: 24px; text-align: center; font-weight: 700; }
+
+.right { text-align: right; }
+
+a.disabled { pointer-events: none; opacity: 0.5; }
