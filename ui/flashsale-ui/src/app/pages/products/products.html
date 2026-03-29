@@ -1,0 +1,23 @@
+<h2>Products</h2>
+
+<div class="card">
+  <div class="row">
+    <input [(ngModel)]="query" placeholder="search..." />
+    <button class="btn primary" (click)="load()">Search</button>
+  </div>
+  <div style="margin-top:8px; color:#444;">User: {{userId}}</div>
+  <div style="margin-top:8px; color:#0a0;">{{msg}}</div>
+</div>
+
+<div *ngIf="loading">Loading...</div>
+
+<div *ngFor="let p of products" class="card">
+  <div class="row">
+    <div>
+      <div><b>{{p.name}}</b></div>
+      <div style="color:#666">{{p.sku}} · {{p.category}}</div>
+      <div>{{p.price}} {{p.currency}}</div>
+    </div>
+    <button class="btn primary" (click)="addToCart(p)">Add to cart</button>
+  </div>
+</div>

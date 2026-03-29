@@ -1,0 +1,32 @@
+.badge {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  border: 1px solid #ddd;
+}
+
+.badge.paid {
+  border-color: #16a34a;
+  color: #16a34a;
+}
+
+.badge.pending {
+  border-color: #f59e0b;
+  color: #b45309;
+}
+
+.badge.cancelled {
+  border-color: #dc2626;
+  color: #dc2626;
+}
+
+.badge.confirmed {
+  border-color: #2563eb;
+  color: #2563eb;
+}
+
+.badge.latest {
+  border-color: #111;
+  color: #111;
+}

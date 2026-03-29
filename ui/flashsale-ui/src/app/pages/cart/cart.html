@@ -1,0 +1,32 @@
+<h2>Cart</h2>
+
+<div class="card">
+  <div>User: <b>{{userId}}</b></div>
+  <div style="margin-top:8px; color:#0a0">{{msg}}</div>
+  <div style="margin-top:8px;" class="row">
+    <button class="btn" (click)="refresh()">Refresh</button>
+    <button class="btn" (click)="clear()">Clear cart</button>
+    <a class="btn primary" routerLink="/checkout">Go to checkout</a>
+  </div>
+</div>
+
+<div *ngIf="!cart">Loading...</div>
+
+<div *ngIf="cart && cart.items.length === 0" class="card">
+  Cart is empty. Go to <a routerLink="/products">Products</a>.
+</div>
+
+<div *ngFor="let item of cart?.items" class="card">
+  <div class="row">
+    <div>
+      <div><b>{{item.sku}}</b></div>
+      <div style="color:#666">Qty: {{item.qty}}</div>
+    </div>
+
+    <div class="row" style="gap:8px;">
+      <input type="number" min="1" [ngModel]="item.qty"
+             (ngModelChange)="setQty(item.sku, $event)" style="width:80px; padding:6px;" />
+      <button class="btn" (click)="remove(item.sku)">Remove</button>
+    </div>
+  </div>
+</div>

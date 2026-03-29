@@ -1,0 +1,39 @@
+<h2>Checkout</h2>
+
+<div class="card">
+  <div>User: <b>{{userId}}</b></div>
+  <div style="margin-top:8px; color:#0a0">{{msg}}</div>
+  <div class="row" style="margin-top:8px;">
+    <button class="btn" (click)="loadCart()">Refresh</button>
+    <a class="btn" routerLink="/cart">Back to cart</a>
+    <button class="btn primary" [disabled]="placing" (click)="placeOrder()">Place Order</button>
+  </div>
+</div>
+
+<div *ngIf="!cart">Loading...</div>
+
+<div *ngIf="cart && cart.items.length === 0" class="card">
+  Cart is empty. Go to <a routerLink="/products">Products</a>.
+</div>
+
+<div *ngFor="let item of cart?.items" class="card">
+  <div class="row">
+    <div>
+      <div><b>{{item.sku}}</b></div>
+      <div style="color:#666">Qty: {{item.qty}}</div>
+    </div>
+    <div>
+      <div *ngIf="prices[item.sku]">
+        {{prices[item.sku].unitPrice}} {{prices[item.sku].currency}}
+      </div>
+      <div *ngIf="!prices[item.sku]" style="color:#c00">Loading price…</div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="cart && cart.items.length > 0" class="card">
+  <div class="row">
+    <div><b>Total</b></div>
+    <div><b>{{total()}}</b></div>
+  </div>
+</div>

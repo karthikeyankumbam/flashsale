@@ -1,0 +1,47 @@
+<h2>Orders</h2>
+
+<div class="card">
+  <div>User: <b>{{userId}}</b></div>
+  <div style="margin-top:8px; color:#c00" *ngIf="msg">{{msg}}</div>
+
+  <div class="row" style="margin-top:8px;">
+    <button class="btn" (click)="refresh()">Refresh</button>
+    <a class="btn" routerLink="/products">Shop more</a>
+  </div>
+</div>
+
+<div *ngIf="lastOrderId" class="card">
+  <div class="row">
+    <div>
+      <div style="color:#666">Last Order</div>
+      <div><b>{{lastOrderId}}</b></div>
+    </div>
+    <div *ngIf="lastOrder">
+      <span [class]="badgeClass(lastOrder.status)">{{lastOrder.status}}</span>
+    </div>
+  </div>
+
+  <div *ngIf="lastOrder" style="margin-top:10px; color:#444;">
+    Total: <b>{{lastOrder.totalAmount}}</b> {{lastOrder.currency}}
+  </div>
+</div>
+
+<div *ngIf="orders.length === 0" class="card">
+  No orders yet.
+</div>
+
+<div *ngFor="let o of orders" class="card">
+  <div class="row">
+    <div>
+      <div><b>{{o.id}}</b></div>
+      <div style="color:#666">
+        <span [class]="badgeClass(o.status)">{{o.status}}</span>
+      </div>
+      <div style="color:#666">Total: {{o.totalAmount}} {{o.currency}}</div>
+    </div>
+
+    <div *ngIf="o.id === lastOrderId">
+      <span class="badge latest">Latest</span>
+    </div>
+  </div>
+</div>
