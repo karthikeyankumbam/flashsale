@@ -19,7 +19,11 @@ public class PaymentCommandsListener {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    @KafkaListener(topics = "flashsale.payment.commands", groupId = "payment-service")
+    @KafkaListener(
+            topics = "flashsale.payment.commands",
+            groupId = "order-service-pay-v2",
+            containerFactory = "paymentRequestedKafkaListenerContainerFactory"
+    )
     public void onPaymentRequested(PaymentRequestedEvent req) {
         PaymentEntity payment = processor.process(req);
         String orderId = req.orderId();

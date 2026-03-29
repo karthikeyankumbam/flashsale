@@ -19,7 +19,11 @@ public class PaymentEventsListener {
         this.orderRepo = orderRepo;
     }
 
-    @KafkaListener(topics = "flashsale.payment.events", groupId = "order-service")
+    @KafkaListener(
+            topics = "flashsale.payment.events",
+            groupId = "order-service",
+            containerFactory = "paymentResultKafkaListenerContainerFactory"
+    )
     @Transactional
     public void onPaymentResult(PaymentResultEvent event) {
         UUID orderId = UUID.fromString(event.orderId());
