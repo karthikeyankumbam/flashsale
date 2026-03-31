@@ -2,14 +2,22 @@
   <div>
     <h2>Products</h2>
     <div class="sub">User: {{ userId }}</div>
+    <div style="opacity: .6; font-size: 12px;">loading = {{ loading }}</div>
   </div>
 
   <mat-form-field appearance="outline" class="search">
     <mat-label>Search</mat-label>
-    <input matInput [(ngModel)]="query" (keyup.enter)="load()" placeholder="iphone, airpods..." />
+    <input
+      matInput
+      [(ngModel)]="query"
+      (keyup.enter)="load()"
+      placeholder="iphone, airpods..."
+    />
   </mat-form-field>
 
-  <button mat-raised-button color="primary" (click)="load()">Search</button>
+  <button mat-raised-button color="primary" (click)="load()" [disabled]="loading">
+    Search
+  </button>
 </div>
 
 <div class="center" *ngIf="loading">
@@ -23,6 +31,7 @@
 
     <mat-card-content>
       <div class="price">{{ p.price }} {{ p.currency }}</div>
+
       <div class="meta" *ngIf="p.attributes">
         <span *ngFor="let kv of (p.attributes | keyvalue)" class="chip">
           {{ kv.key }}: {{ kv.value }}

@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { forkJoin } from 'rxjs';
+import { finalize } from 'rxjs/operators';
 
 import { CartService } from '../../core/cart.service';
 import { OrdersService } from '../../core/orders.service';
@@ -24,9 +25,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   templateUrl: './checkout.html',
   styleUrl: './checkout.scss',
 })
-export class CheckoutComponent {
+export class CheckoutComponent implements OnInit {
   userId = getUserId();
   cart?: CartResponse;
+
   loading = false;
   placing = false;
 
@@ -37,34 +39,46 @@ export class CheckoutComponent {
     private ordersSvc: OrdersService,
     private catalogSvc: CatalogService,
     private snack: MatSnackBar,
-    private router: Router
-  ) {
+    private router: Router,
+    private cdr: ChangeDetectorRef
+  ) {}
+
+  ngOnInit(): void {
     this.load();
   }
 
   load() {
     this.loading = true;
-    this.cartSvc.getCart(this.userId).subscribe({
-      next: (c) => {
-        this.cart = c;
+    this.cdr.detectChanges();
+
+    this.cartSvc.getCart(this.userId)
+      .pipe(finalize(() => {
         this.loading = false;
-        this.loadPrices();
-      },
-      error: () => {
-        this.loading = false;
-        this.snack.open('Failed to load cart', 'Close', { duration: 2500 });
-      }
-    });
+        this.cdr.detectChanges();
+      }))
+      .subscribe({
+        next: (c) => {
+          this.cart = c;
+          this.cdr.detectChanges();
+          this.loadPrices();
+        },
+        error: (e) => {
+          console.error(e);
+          this.snack.open('Failed to load cart', 'Close', { duration: 2500 });
+        }
+      });
   }
 
   loadPrices() {
     if (!this.cart || this.cart.items.length === 0) return;
+
     const calls = this.cart.items.map(i => this.catalogSvc.getBySku(i.sku));
     forkJoin(calls).subscribe({
       next: (products) => {
         products.forEach(p => {
           this.prices[p.sku] = { unitPrice: p.price, currency: p.currency, name: p.name };
         });
+        this.cdr.detectChanges();
       },
       error: () => this.snack.open('Failed to load catalog prices', 'Close', { duration: 2500 })
     });
@@ -81,6 +95,10 @@ export class CheckoutComponent {
   currency(): string {
     const skus = Object.keys(this.prices);
     return skus.length ? this.prices[skus[0]].currency : 'INR';
+  }
+
+  hasItems(): boolean {
+    return !!this.cart && this.cart.items.length > 0;
   }
 
   placeOrder() {
@@ -103,21 +121,23 @@ export class CheckoutComponent {
     const idempotencyKey = `UI-${this.userId}-${Date.now()}`;
 
     this.placing = true;
-    this.ordersSvc.createOrder(this.userId, idempotencyKey, req).subscribe({
-      next: (res) => {
-        this.snack.open(`Order created: ${res.orderId}`, 'OK', { duration: 2000 });
-        this.cartSvc.clearCart(this.userId).subscribe({ next: () => {} });
-        this.placing = false;
-        this.router.navigate(['/orders'], { queryParams: { last: res.orderId } });
-      },
-      error: () => {
-        this.placing = false;
-        this.snack.open('Failed to place order', 'Close', { duration: 2500 });
-      }
-    });
-  }
+    this.cdr.detectChanges();
 
-  hasItems(): boolean {
-    return !!this.cart && this.cart.items.length > 0;
+    this.ordersSvc.createOrder(this.userId, idempotencyKey, req)
+      .pipe(finalize(() => {
+        this.placing = false;
+        this.cdr.detectChanges();
+      }))
+      .subscribe({
+        next: (res) => {
+          this.snack.open(`Order created: ${res.orderId}`, 'OK', { duration: 2000 });
+          this.cartSvc.clearCart(this.userId).subscribe({ next: () => {} });
+          this.router.navigate(['/orders'], { queryParams: { last: res.orderId } });
+        },
+        error: (e) => {
+          console.error(e);
+          this.snack.open('Failed to place order', 'Close', { duration: 2500 });
+        }
+      });
   }
 }

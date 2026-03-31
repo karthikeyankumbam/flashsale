@@ -2,12 +2,13 @@
   <div>
     <h2>Checkout</h2>
     <div class="sub">User: {{ userId }}</div>
+    <div style="opacity:.6;font-size:12px;">loading = {{ loading }}, placing = {{ placing }}</div>
   </div>
 
   <div class="actions">
-    <button mat-stroked-button (click)="load()">Refresh</button>
+    <button mat-stroked-button (click)="load()" [disabled]="loading || placing">Refresh</button>
     <a mat-stroked-button routerLink="/cart">Back</a>
-    <button mat-raised-button color="primary" (click)="placeOrder()" [disabled]="placing || !hasItems()">
+    <button mat-raised-button color="primary" (click)="placeOrder()" [disabled]="placing || loading || !hasItems()">
       Place Order
     </button>
   </div>

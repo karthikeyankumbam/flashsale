@@ -2,11 +2,12 @@
   <div>
     <h2>Cart</h2>
     <div class="sub">User: {{ userId }}</div>
+    <div style="opacity:.6;font-size:12px;">loading = {{ loading }}</div>
   </div>
 
   <div class="actions">
-    <button mat-stroked-button (click)="refresh()">Refresh</button>
-    <button mat-stroked-button (click)="clear()" [disabled]="!hasItems()">Clear</button>
+    <button mat-stroked-button (click)="refresh()" [disabled]="loading">Refresh</button>
+    <button mat-stroked-button (click)="clear()" [disabled]="loading || !hasItems()">Clear</button>
     <a mat-raised-button color="primary" routerLink="/checkout" [class.disabled]="!hasItems()">Checkout</a>
   </div>
 </div>

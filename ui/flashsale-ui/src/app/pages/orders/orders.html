@@ -5,7 +5,7 @@
   </div>
 
   <div class="actions">
-    <button mat-stroked-button (click)="refresh()">Refresh</button>
+    <button mat-stroked-button (click)="refresh(true)" [disabled]="loading">Refresh</button>
     <a mat-stroked-button routerLink="/products">Shop</a>
   </div>
 </div>
@@ -14,37 +14,40 @@
   <mat-spinner diameter="36"></mat-spinner>
 </div>
 
-<mat-card *ngIf="lastOrderId" class="last">
-  <div class="row">
-    <div>
-      <div class="meta">Last Order</div>
-      <div class="id">{{ lastOrderId }}</div>
-    </div>
-    <mat-chip *ngIf="lastOrder" [color]="chipColor(lastOrder.status)" selected>
-      {{ lastOrder.status }}
-    </mat-chip>
-  </div>
-
-  <div *ngIf="lastOrder" class="meta" style="margin-top:10px;">
-    Total: <b>{{ lastOrder.totalAmount }}</b> {{ lastOrder.currency }}
-  </div>
-</mat-card>
-
-<mat-card *ngIf="!loading && orders.length === 0" class="empty">
-  No orders yet.
-</mat-card>
-
-<div class="list" *ngIf="!loading && orders.length > 0">
-  <mat-card class="order" *ngFor="let o of orders">
+<ng-container *ngIf="!loading">
+  <mat-card *ngIf="lastOrderId" class="last">
     <div class="row">
       <div>
-        <div class="id">{{ o.id }}</div>
-        <div class="meta">Total: {{ o.totalAmount }} {{ o.currency }}</div>
+        <div class="meta">Last Order</div>
+        <div class="id">{{ lastOrderId }}</div>
       </div>
-      <div class="right">
-        <mat-chip [color]="chipColor(o.status)" selected>{{ o.status }}</mat-chip>
-        <div *ngIf="o.id === lastOrderId" class="latest">Latest</div>
-      </div>
+      <mat-chip *ngIf="lastOrder" [color]="chipColor(lastOrder.status)" selected>
+        {{ lastOrder.status }}
+      </mat-chip>
+    </div>
+
+    <div *ngIf="lastOrder" class="meta" style="margin-top:10px;">
+      Total: <b>{{ lastOrder.totalAmount }}</b> {{ lastOrder.currency }}
     </div>
   </mat-card>
-</div>
+
+  <mat-card *ngIf="orders.length === 0" class="empty">
+    No orders yet.
+  </mat-card>
+
+  <div class="list" *ngIf="orders.length > 0">
+    <mat-card class="order" *ngFor="let o of orders">
+      <div class="row">
+        <div>
+          <div class="id">{{ o.id }}</div>
+          <div class="meta">Total: {{ o.totalAmount }} {{ o.currency }}</div>
+        </div>
+
+        <div class="right">
+          <mat-chip [color]="chipColor(o.status)" selected>{{ o.status }}</mat-chip>
+          <div *ngIf="o.id === lastOrderId" class="latest">Latest</div>
+        </div>
+      </div>
+    </mat-card>
+  </div>
+</ng-container>
