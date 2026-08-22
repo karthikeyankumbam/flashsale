@@ -1,46 +1,85 @@
-<div class="header">
-  <div>
-    <h2>Products</h2>
-    <div class="sub">User: {{ userId }}</div>
-    <div style="opacity: .6; font-size: 12px;">loading = {{ loading }}</div>
+<section class="hero">
+  <div class="heroCopy">
+    <div class="eyebrow"><span></span> Limited-time drops</div>
+    <h1>The good stuff,<br /><em>gone fast.</em></h1>
+    <p>Fresh finds, honest prices, and no time for second thoughts.</p>
   </div>
 
-  <mat-form-field appearance="outline" class="search">
-    <mat-label>Search</mat-label>
-    <input
-      matInput
-      [(ngModel)]="query"
-      (keyup.enter)="load()"
-      placeholder="iphone, airpods..."
-    />
-  </mat-form-field>
+  <div class="heroArt" aria-hidden="true">
+    <span class="sticker">UP TO<br /><b>40% OFF</b></span>
+    <span class="spark sparkOne">✦</span>
+    <span class="spark sparkTwo">✦</span>
+    <div class="saleCard">
+      <span>Today only</span>
+      <strong>Catch it<br />before it’s gone.</strong>
+    </div>
+  </div>
+</section>
 
+<section class="searchBar" aria-label="Product search">
+  <mat-icon>search</mat-icon>
+  <input
+    [(ngModel)]="query"
+    (keyup.enter)="load()"
+    placeholder="What are you looking for?"
+    aria-label="Search products"
+  />
   <button mat-raised-button color="primary" (click)="load()" [disabled]="loading">
-    Search
+    Search deals
   </button>
+</section>
+
+<div class="sectionHeader">
+  <div>
+    <div class="eyebrow">Curated for you</div>
+    <h2>Trending right now</h2>
+  </div>
+  <div class="resultMeta">
+    <span class="liveDot"></span>
+    {{ products.length }} {{ products.length === 1 ? 'find' : 'finds' }} for {{ userId }}
+  </div>
 </div>
 
 <div class="center" *ngIf="loading">
   <mat-spinner diameter="36"></mat-spinner>
+  <span>Hunting down the best deals…</span>
 </div>
 
 <div class="grid" *ngIf="!loading">
   <mat-card class="product" *ngFor="let p of products">
-    <mat-card-title>{{ p.name }}</mat-card-title>
-    <mat-card-subtitle>{{ p.sku }} • {{ p.category }}</mat-card-subtitle>
+    <div class="productVisual">
+      <span class="category">{{ p.category }}</span>
+      <span class="productGlyph">{{ p.name.charAt(0) }}</span>
+      <span class="dealTag">Quick pick</span>
+    </div>
 
     <mat-card-content>
-      <div class="price">{{ p.price }} {{ p.currency }}</div>
+      <div class="sku">{{ p.sku }}</div>
+      <h3>{{ p.name }}</h3>
 
       <div class="meta" *ngIf="p.attributes">
-        <span *ngFor="let kv of (p.attributes | keyvalue)" class="chip">
-          {{ kv.key }}: {{ kv.value }}
+        <span *ngFor="let kv of p.attributes | keyvalue" class="chip">
+          {{ kv.value }}
         </span>
       </div>
     </mat-card-content>
 
-    <mat-card-actions align="end">
-      <button mat-stroked-button (click)="addToCart(p)">Add to Cart</button>
+    <mat-card-actions>
+      <div class="price">
+        <span>{{ p.currency }}</span
+        >{{ p.price | number: '1.0-2' }}
+      </div>
+      <button mat-raised-button color="primary" (click)="addToCart(p)">
+        <mat-icon>add_shopping_cart</mat-icon>
+        Add
+      </button>
     </mat-card-actions>
   </mat-card>
+</div>
+
+<div class="empty" *ngIf="!loading && products.length === 0">
+  <div class="emptyIcon"><mat-icon>search_off</mat-icon></div>
+  <h3>No deals found</h3>
+  <p>Try a broader search or come back for the next drop.</p>
+  <button mat-stroked-button (click)="query = ''; load()">Show everything</button>
 </div>

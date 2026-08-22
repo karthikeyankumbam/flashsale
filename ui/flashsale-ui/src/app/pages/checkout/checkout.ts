@@ -14,13 +14,19 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-checkout',
   standalone: true,
   imports: [
-    CommonModule, RouterModule,
-    MatCardModule, MatButtonModule, MatSnackBarModule, MatProgressSpinnerModule
+    CommonModule,
+    RouterModule,
+    MatCardModule,
+    MatButtonModule,
+    MatSnackBarModule,
+    MatProgressSpinnerModule,
+    MatIconModule,
   ],
   templateUrl: './checkout.html',
   styleUrl: './checkout.scss',
@@ -40,7 +46,7 @@ export class CheckoutComponent implements OnInit {
     private catalogSvc: CatalogService,
     private snack: MatSnackBar,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -51,11 +57,14 @@ export class CheckoutComponent implements OnInit {
     this.loading = true;
     this.cdr.detectChanges();
 
-    this.cartSvc.getCart(this.userId)
-      .pipe(finalize(() => {
-        this.loading = false;
-        this.cdr.detectChanges();
-      }))
+    this.cartSvc
+      .getCart(this.userId)
+      .pipe(
+        finalize(() => {
+          this.loading = false;
+          this.cdr.detectChanges();
+        }),
+      )
       .subscribe({
         next: (c) => {
           this.cart = c;
@@ -64,23 +73,25 @@ export class CheckoutComponent implements OnInit {
         },
         error: (e) => {
           console.error(e);
+          this.cart = { userId: this.userId, items: [] };
           this.snack.open('Failed to load cart', 'Close', { duration: 2500 });
-        }
+          this.cdr.detectChanges();
+        },
       });
   }
 
   loadPrices() {
     if (!this.cart || this.cart.items.length === 0) return;
 
-    const calls = this.cart.items.map(i => this.catalogSvc.getBySku(i.sku));
+    const calls = this.cart.items.map((i) => this.catalogSvc.getBySku(i.sku));
     forkJoin(calls).subscribe({
       next: (products) => {
-        products.forEach(p => {
+        products.forEach((p) => {
           this.prices[p.sku] = { unitPrice: p.price, currency: p.currency, name: p.name };
         });
         this.cdr.detectChanges();
       },
-      error: () => this.snack.open('Failed to load catalog prices', 'Close', { duration: 2500 })
+      error: () => this.snack.open('Failed to load catalog prices', 'Close', { duration: 2500 }),
     });
   }
 
@@ -123,11 +134,14 @@ export class CheckoutComponent implements OnInit {
     this.placing = true;
     this.cdr.detectChanges();
 
-    this.ordersSvc.createOrder(this.userId, idempotencyKey, req)
-      .pipe(finalize(() => {
-        this.placing = false;
-        this.cdr.detectChanges();
-      }))
+    this.ordersSvc
+      .createOrder(this.userId, idempotencyKey, req)
+      .pipe(
+        finalize(() => {
+          this.placing = false;
+          this.cdr.detectChanges();
+        }),
+      )
       .subscribe({
         next: (res) => {
           this.snack.open(`Order created: ${res.orderId}`, 'OK', { duration: 2000 });
@@ -137,7 +151,7 @@ export class CheckoutComponent implements OnInit {
         error: (e) => {
           console.error(e);
           this.snack.open('Failed to place order', 'Close', { duration: 2500 });
-        }
+        },
       });
   }
 }

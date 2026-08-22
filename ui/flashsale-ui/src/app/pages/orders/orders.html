@@ -1,53 +1,94 @@
-<div class="header">
+<div class="pageHeader">
   <div>
-    <h2>Orders</h2>
-    <div class="sub">User: {{ userId }}</div>
+    <div class="eyebrow">Your timeline</div>
+    <h1>Orders</h1>
+    <p>Every find, from checkout to confirmed.</p>
   </div>
 
-  <div class="actions">
-    <button mat-stroked-button (click)="refresh(true)" [disabled]="loading">Refresh</button>
-    <a mat-stroked-button routerLink="/products">Shop</a>
+  <div class="headerActions">
+    <button
+      mat-icon-button
+      class="refreshButton"
+      (click)="refresh(true)"
+      [disabled]="loading"
+      aria-label="Refresh orders"
+    >
+      <mat-icon>refresh</mat-icon>
+    </button>
+    <a mat-raised-button color="primary" routerLink="/products"
+      ><mat-icon>storefront</mat-icon> Keep shopping</a
+    >
   </div>
 </div>
 
 <div class="center" *ngIf="loading">
   <mat-spinner diameter="36"></mat-spinner>
+  <span>Finding your orders…</span>
 </div>
 
 <ng-container *ngIf="!loading">
   <mat-card *ngIf="lastOrderId" class="last">
-    <div class="row">
+    <div class="successIcon"><mat-icon>check</mat-icon></div>
+    <div class="lastCopy">
+      <div class="eyebrow">Order received</div>
+      <h2>Nice catch.</h2>
+      <p>Your latest order is in the queue and we’ll keep the status updated here.</p>
+    </div>
+    <div class="lastMeta">
       <div>
-        <div class="meta">Last Order</div>
+        <div class="meta">Order reference</div>
         <div class="id">{{ lastOrderId }}</div>
       </div>
-      <mat-chip *ngIf="lastOrder" [color]="chipColor(lastOrder.status)" selected>
+      <mat-chip *ngIf="lastOrder" class="statusChip" [attr.data-status]="lastOrder.status">
         {{ lastOrder.status }}
       </mat-chip>
-    </div>
-
-    <div *ngIf="lastOrder" class="meta" style="margin-top:10px;">
-      Total: <b>{{ lastOrder.totalAmount }}</b> {{ lastOrder.currency }}
+      <div *ngIf="lastOrder" class="lastTotal">
+        <span>Order total</span>
+        <strong>{{ lastOrder.totalAmount | number: '1.0-2' }} {{ lastOrder.currency }}</strong>
+      </div>
     </div>
   </mat-card>
 
   <mat-card *ngIf="orders.length === 0" class="empty">
-    No orders yet.
+    <div class="emptyIcon"><mat-icon>inventory_2</mat-icon></div>
+    <h2>No orders yet</h2>
+    <p>When you make your first great find, it’ll show up here.</p>
+    <a mat-raised-button color="primary" routerLink="/products">Start shopping</a>
   </mat-card>
 
-  <div class="list" *ngIf="orders.length > 0">
-    <mat-card class="order" *ngFor="let o of orders">
-      <div class="row">
-        <div>
+  <section *ngIf="orders.length > 0" class="history">
+    <div class="sectionHeader">
+      <div>
+        <div class="eyebrow">Order history</div>
+        <h2>All orders</h2>
+      </div>
+      <span
+        >{{ orders.length }} {{ orders.length === 1 ? 'order' : 'orders' }} for {{ userId }}</span
+      >
+    </div>
+
+    <div class="list">
+      <mat-card class="order" *ngFor="let o of orders">
+        <div class="orderIcon"><mat-icon>package_2</mat-icon></div>
+        <div class="orderInfo">
+          <div class="meta">Order reference</div>
           <div class="id">{{ o.id }}</div>
-          <div class="meta">Total: {{ o.totalAmount }} {{ o.currency }}</div>
+          <div *ngIf="o.id === lastOrderId" class="latest">Latest order</div>
+        </div>
+
+        <div class="orderTotal">
+          <span>Total</span>
+          <strong>{{ o.totalAmount | number: '1.0-2' }} {{ o.currency }}</strong>
         </div>
 
         <div class="right">
-          <mat-chip [color]="chipColor(o.status)" selected>{{ o.status }}</mat-chip>
-          <div *ngIf="o.id === lastOrderId" class="latest">Latest</div>
+          <mat-chip class="statusChip" [attr.data-status]="o.status">{{ o.status }}</mat-chip>
+          <div class="statusHint">
+            <span [attr.data-status]="o.status"></span>
+            {{ o.status === 'PAID' ? 'Payment confirmed' : 'Status updated live' }}
+          </div>
         </div>
-      </div>
-    </mat-card>
-  </div>
+      </mat-card>
+    </div>
+  </section>
 </ng-container>

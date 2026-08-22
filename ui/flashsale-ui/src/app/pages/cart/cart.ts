@@ -18,9 +18,14 @@ import { finalize } from 'rxjs/operators';
   selector: 'app-cart',
   standalone: true,
   imports: [
-    CommonModule, RouterModule,
-    MatCardModule, MatButtonModule, MatTableModule, MatIconModule,
-    MatSnackBarModule, MatProgressSpinnerModule
+    CommonModule,
+    RouterModule,
+    MatCardModule,
+    MatButtonModule,
+    MatTableModule,
+    MatIconModule,
+    MatSnackBarModule,
+    MatProgressSpinnerModule,
   ],
   templateUrl: './cart.html',
   styleUrl: './cart.scss',
@@ -35,7 +40,7 @@ export class CartComponent implements OnInit {
   constructor(
     private cartSvc: CartService,
     private snack: MatSnackBar,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -46,11 +51,14 @@ export class CartComponent implements OnInit {
     this.loading = true;
     this.cdr.detectChanges();
 
-    this.cartSvc.getCart(this.userId)
-      .pipe(finalize(() => {
-        this.loading = false;
-        this.cdr.detectChanges();
-      }))
+    this.cartSvc
+      .getCart(this.userId)
+      .pipe(
+        finalize(() => {
+          this.loading = false;
+          this.cdr.detectChanges();
+        }),
+      )
       .subscribe({
         next: (c) => {
           this.cart = c;
@@ -58,24 +66,31 @@ export class CartComponent implements OnInit {
         },
         error: (e) => {
           console.error(e);
+          this.cart = { userId: this.userId, items: [] };
           this.snack.open('Failed to load cart', 'Close', { duration: 2500 });
           this.cdr.detectChanges();
-        }
+        },
       });
   }
 
   inc(sku: string, qty: number) {
     this.cartSvc.setQty(this.userId, sku, qty + 1).subscribe({
-      next: (c) => { this.cart = c; this.cdr.detectChanges(); },
-      error: () => this.snack.open('Failed to update qty', 'Close', { duration: 2500 })
+      next: (c) => {
+        this.cart = c;
+        this.cdr.detectChanges();
+      },
+      error: () => this.snack.open('Failed to update qty', 'Close', { duration: 2500 }),
     });
   }
 
   dec(sku: string, qty: number) {
     if (qty <= 1) return;
     this.cartSvc.setQty(this.userId, sku, qty - 1).subscribe({
-      next: (c) => { this.cart = c; this.cdr.detectChanges(); },
-      error: () => this.snack.open('Failed to update qty', 'Close', { duration: 2500 })
+      next: (c) => {
+        this.cart = c;
+        this.cdr.detectChanges();
+      },
+      error: () => this.snack.open('Failed to update qty', 'Close', { duration: 2500 }),
     });
   }
 
@@ -86,7 +101,7 @@ export class CartComponent implements OnInit {
         this.snack.open('Removed item', 'OK', { duration: 1500 });
         this.cdr.detectChanges();
       },
-      error: () => this.snack.open('Failed to remove item', 'Close', { duration: 2500 })
+      error: () => this.snack.open('Failed to remove item', 'Close', { duration: 2500 }),
     });
   }
 
@@ -96,7 +111,7 @@ export class CartComponent implements OnInit {
         this.snack.open('Cart cleared', 'OK', { duration: 1500 });
         this.refresh();
       },
-      error: () => this.snack.open('Failed to clear cart', 'Close', { duration: 2500 })
+      error: () => this.snack.open('Failed to clear cart', 'Close', { duration: 2500 }),
     });
   }
 

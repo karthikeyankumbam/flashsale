@@ -1,41 +1,107 @@
-<div class="header">
+<div class="pageHeader">
   <div>
-    <h2>Checkout</h2>
-    <div class="sub">User: {{ userId }}</div>
-    <div style="opacity:.6;font-size:12px;">loading = {{ loading }}, placing = {{ placing }}</div>
+    <a class="backLink" routerLink="/cart"><mat-icon>arrow_back</mat-icon> Back to your bag</a>
+    <div class="eyebrow">Almost yours</div>
+    <h1>Checkout</h1>
+    <p>Review the details below, then make it official.</p>
   </div>
 
-  <div class="actions">
-    <button mat-stroked-button (click)="load()" [disabled]="loading || placing">Refresh</button>
-    <a mat-stroked-button routerLink="/cart">Back</a>
-    <button mat-raised-button color="primary" (click)="placeOrder()" [disabled]="placing || loading || !hasItems()">
-      Place Order
-    </button>
+  <div class="steps" aria-label="Checkout progress">
+    <span class="done"><mat-icon>check</mat-icon> Bag</span>
+    <i></i>
+    <span class="active">2</span>
+    <b>Review</b>
   </div>
 </div>
 
 <div class="center" *ngIf="loading">
   <mat-spinner diameter="36"></mat-spinner>
+  <span>Preparing your checkout…</span>
 </div>
 
 <mat-card *ngIf="!loading && cart && cart.items.length === 0" class="empty">
-  Cart is empty. Go to <a routerLink="/products">Products</a>.
+  <div class="emptyIcon"><mat-icon>remove_shopping_cart</mat-icon></div>
+  <h2>Nothing to check out yet</h2>
+  <p>Add a few finds to your bag and come back when you’re ready.</p>
+  <a mat-raised-button color="primary" routerLink="/products">Browse the sale</a>
 </mat-card>
 
-<mat-card *ngIf="!loading && cart && cart.items.length > 0" class="summary">
-  <div class="line" *ngFor="let i of cart.items">
-    <div>
-      <div class="name">{{ prices[i.sku]?.name || i.sku }}</div>
-      <div class="meta">{{ i.sku }} • Qty {{ i.qty }}</div>
+<div *ngIf="!loading && cart && cart.items.length > 0" class="checkoutLayout">
+  <section class="orderPanel">
+    <div class="panelHeader">
+      <div>
+        <span>Order summary</span>
+        <h2>Your final edit</h2>
+      </div>
+      <button
+        mat-icon-button
+        (click)="load()"
+        [disabled]="loading || placing"
+        aria-label="Refresh checkout"
+      >
+        <mat-icon>refresh</mat-icon>
+      </button>
     </div>
-    <div class="price" *ngIf="prices[i.sku]">
-      {{ prices[i.sku].unitPrice * i.qty }} {{ prices[i.sku].currency }}
-    </div>
-    <div class="meta" *ngIf="!prices[i.sku]">Loading price…</div>
-  </div>
 
-  <div class="total">
-    <div>Total</div>
-    <div class="price">{{ total() }} {{ currency() }}</div>
-  </div>
-</mat-card>
+    <div class="line" *ngFor="let i of cart.items; let n = index">
+      <div class="itemVisual">
+        <span>{{ (prices[i.sku]?.name || i.sku).charAt(0) }}</span>
+      </div>
+      <div class="itemInfo">
+        <div class="name">{{ prices[i.sku]?.name || i.sku }}</div>
+        <div class="meta">{{ i.sku }} · Quantity {{ i.qty }}</div>
+      </div>
+      <div class="price" *ngIf="prices[i.sku]">
+        <span>{{ prices[i.sku].currency }}</span
+        >{{ prices[i.sku].unitPrice * i.qty | number: '1.0-2' }}
+      </div>
+      <div class="meta" *ngIf="!prices[i.sku]">Loading…</div>
+    </div>
+
+    <div class="dispatchNote">
+      <mat-icon>local_shipping</mat-icon>
+      <div>
+        <strong>Fast dispatch included</strong
+        ><span>Your items will start moving after confirmation.</span>
+      </div>
+    </div>
+  </section>
+
+  <aside class="paymentCard">
+    <div class="secureLabel"><mat-icon>lock</mat-icon> Secure checkout</div>
+    <h2>Order total</h2>
+
+    <div class="costRow">
+      <span>Subtotal</span><strong>{{ total() | number: '1.0-2' }} {{ currency() }}</strong>
+    </div>
+    <div class="costRow"><span>Order processing</span><strong>Included</strong></div>
+    <div class="divider"></div>
+    <div class="total">
+      <span>Total</span>
+      <div class="price">
+        <small>{{ currency() }}</small
+        >{{ total() | number: '1.0-2' }}
+      </div>
+    </div>
+
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="placeOrder()"
+      [disabled]="placing || loading || !hasItems()"
+    >
+      <mat-spinner *ngIf="placing" diameter="18"></mat-spinner>
+      <span>{{ placing ? 'Placing order…' : 'Place order' }}</span>
+      <mat-icon *ngIf="!placing">arrow_forward</mat-icon>
+    </button>
+
+    <p class="terms">By placing this order, you confirm the items and quantities shown.</p>
+    <div class="trust">
+      <mat-icon>verified_user</mat-icon
+      ><span
+        ><strong>Protected transaction</strong>Idempotent order processing keeps every click
+        safe.</span
+      >
+    </div>
+  </aside>
+</div>

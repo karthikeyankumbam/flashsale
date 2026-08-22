@@ -1,58 +1,103 @@
-<div class="header">
+<div class="pageHeader">
   <div>
-    <h2>Cart</h2>
-    <div class="sub">User: {{ userId }}</div>
-    <div style="opacity:.6;font-size:12px;">loading = {{ loading }}</div>
+    <a class="backLink" routerLink="/products"><mat-icon>arrow_back</mat-icon> Continue shopping</a>
+    <div class="eyebrow">Your picks</div>
+    <h1>Shopping bag</h1>
+    <p>
+      {{ cart?.items?.length || 0 }} {{ (cart?.items?.length || 0) === 1 ? 'item' : 'items' }} saved
+      for {{ userId }}
+    </p>
   </div>
 
-  <div class="actions">
-    <button mat-stroked-button (click)="refresh()" [disabled]="loading">Refresh</button>
-    <button mat-stroked-button (click)="clear()" [disabled]="loading || !hasItems()">Clear</button>
-    <a mat-raised-button color="primary" routerLink="/checkout" [class.disabled]="!hasItems()">Checkout</a>
-  </div>
+  <button
+    mat-icon-button
+    class="refreshButton"
+    (click)="refresh()"
+    [disabled]="loading"
+    aria-label="Refresh cart"
+  >
+    <mat-icon>refresh</mat-icon>
+  </button>
 </div>
 
 <div class="center" *ngIf="loading">
   <mat-spinner diameter="36"></mat-spinner>
+  <span>Checking your bag…</span>
 </div>
 
 <mat-card *ngIf="!loading && cart && cart.items.length === 0" class="empty">
-  Cart is empty. Go to <a routerLink="/products">Products</a>.
+  <div class="emptyIcon"><mat-icon>shopping_bag</mat-icon></div>
+  <h2>Your bag is waiting</h2>
+  <p>Good things move quickly around here. Find something you love.</p>
+  <a mat-raised-button color="primary" routerLink="/products">Explore the sale</a>
 </mat-card>
 
-<mat-card *ngIf="!loading && cart && cart.items.length > 0" class="tableCard">
-  <table mat-table [dataSource]="cart.items" class="mat-elevation-z0 full">
+<div *ngIf="!loading && cart && cart.items.length > 0" class="cartLayout">
+  <div class="itemsPanel">
+    <div class="panelTitle">
+      <div>
+        <span>Bag contents</span>
+        <strong>{{ cart.items.length }} {{ cart.items.length === 1 ? 'item' : 'items' }}</strong>
+      </div>
+      <button mat-button class="clearButton" (click)="clear()" [disabled]="loading">
+        Clear all
+      </button>
+    </div>
 
-    <ng-container matColumnDef="sku">
-      <th mat-header-cell *matHeaderCellDef>SKU</th>
-      <td mat-cell *matCellDef="let i">
+    <div class="cartItem" *ngFor="let i of cart.items; let n = index">
+      <div class="itemVisual">
+        <span>{{ i.sku.charAt(0) }}</span>
+      </div>
+      <div class="itemInfo">
+        <div class="itemLabel">FlashSale find</div>
         <div class="sku">{{ i.sku }}</div>
-      </td>
-    </ng-container>
+        <div class="stock"><span></span> In stock & ready to go</div>
+      </div>
 
-    <ng-container matColumnDef="qty">
-      <th mat-header-cell *matHeaderCellDef>Qty</th>
-      <td mat-cell *matCellDef="let i">
-        <div class="qty">
-          <button mat-icon-button (click)="dec(i.sku, i.qty)" [disabled]="i.qty <= 1">
+      <div class="itemControls">
+        <div class="qty" aria-label="Quantity controls">
+          <button
+            mat-icon-button
+            (click)="dec(i.sku, i.qty)"
+            [disabled]="i.qty <= 1"
+            aria-label="Decrease quantity"
+          >
             <mat-icon>remove</mat-icon>
           </button>
           <span class="qtyNum">{{ i.qty }}</span>
-          <button mat-icon-button (click)="inc(i.sku, i.qty)">
+          <button mat-icon-button (click)="inc(i.sku, i.qty)" aria-label="Increase quantity">
             <mat-icon>add</mat-icon>
           </button>
         </div>
-      </td>
-    </ng-container>
+        <button
+          mat-icon-button
+          class="removeButton"
+          (click)="remove(i.sku)"
+          aria-label="Remove item"
+        >
+          <mat-icon>delete_outline</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
 
-    <ng-container matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef></th>
-      <td mat-cell *matCellDef="let i" class="right">
-        <button mat-stroked-button color="warn" (click)="remove(i.sku)">Remove</button>
-      </td>
-    </ng-container>
+  <aside class="summaryCard">
+    <span class="summaryLabel">Ready when you are</span>
+    <h2>Next stop,<br />checkout.</h2>
+    <p>We’ll confirm live pricing and availability before you place the order.</p>
 
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-  </table>
-</mat-card>
+    <div class="benefit">
+      <mat-icon>local_shipping</mat-icon
+      ><span><strong>Fast dispatch</strong>Items move as soon as your order is confirmed.</span>
+    </div>
+    <div class="benefit">
+      <mat-icon>verified_user</mat-icon
+      ><span><strong>Safe checkout</strong>Your order is protected end to end.</span>
+    </div>
+
+    <a mat-raised-button color="primary" routerLink="/checkout">
+      Continue to checkout <mat-icon>arrow_forward</mat-icon>
+    </a>
+    <div class="finePrint"><mat-icon>lock</mat-icon> Secure order processing</div>
+  </aside>
+</div>

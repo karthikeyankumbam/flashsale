@@ -10,6 +10,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-orders',
@@ -21,6 +22,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatButtonModule,
     MatChipsModule,
     MatProgressSpinnerModule,
+    MatIconModule,
   ],
   templateUrl: './orders.html',
   styleUrl: './orders.scss',
@@ -38,7 +40,7 @@ export class OrdersComponent implements OnInit {
   constructor(
     private ordersSvc: OrdersService,
     private route: ActivatedRoute,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -70,7 +72,7 @@ export class OrdersComponent implements OnInit {
             this.loading = false;
             this.cdr.detectChanges();
           }
-        })
+        }),
       )
       .subscribe({
         next: (res) => {

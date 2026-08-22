@@ -10,10 +10,10 @@ html {
   @include mat.theme(
     (
       color: (
-        primary: mat.$azure-palette,
-        tertiary: mat.$blue-palette,
+        primary: mat.$orange-palette,
+        tertiary: mat.$red-palette,
       ),
-      typography: Roboto,
+      typography: Manrope,
       density: 0,
     )
   );
@@ -28,49 +28,61 @@ body {
   // Set a default background, font and text colors for the application using
   // Angular Material's system-level CSS variables. Learn more about these
   // variables at https://material.angular.dev/guide/system-variables
-  background-color: var(--mat-sys-surface);
-  color: var(--mat-sys-on-surface);
+  --ink: #201d19;
+  --muted: #716b64;
+  --coral: #f05d4a;
+  --coral-dark: #bf382b;
+  --coral-soft: #fff0ec;
+  --sun: #f5b843;
+  --surface: #fffdfa;
+  --surface-soft: #f6f1e9;
+  --border: rgba(32, 29, 25, 0.1);
+
+  background:
+    radial-gradient(circle at 10% 0%, rgba(245, 184, 67, 0.12), transparent 26rem),
+    radial-gradient(circle at 95% 20%, rgba(240, 93, 74, 0.09), transparent 28rem), #fbf8f2;
+  color: var(--ink);
   font: var(--mat-sys-body-medium);
 
   // Reset the user agent margin.
   margin: 0;
-  height: 100%;
-}
-.nav {
-  display: flex;
-  gap: 16px;
-  padding: 12px 16px;
-  border-bottom: 1px solid #eee;
+  min-height: 100%;
 }
 
-.container {
-  padding: 16px;
-  max-width: 900px;
-  margin: 0 auto;
+* {
+  box-sizing: border-box;
 }
 
-.card {
-  border: 1px solid #eee;
-  border-radius: 12px;
-  padding: 12px;
-  margin-bottom: 12px;
+::selection {
+  color: var(--ink);
+  background: #ffd9ae;
 }
 
-.row {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  justify-content: space-between;
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
 }
 
-.btn {
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  background: white;
-  cursor: pointer;
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
 }
 
-.btn.primary {
-  border-color: #111;
+.mat-mdc-raised-button.mat-primary {
+  --mdc-protected-button-container-color: var(--coral);
+  --mdc-protected-button-label-text-color: white;
+  background-color: var(--coral) !important;
+  color: white !important;
+  box-shadow: 0 9px 20px rgba(240, 93, 74, 0.22) !important;
+}
+
+.mat-mdc-raised-button.mat-primary:hover:not(:disabled) {
+  background-color: var(--coral-dark) !important;
+}
+
+.mat-mdc-snack-bar-container {
+  --mdc-snackbar-container-color: var(--ink);
+  --mdc-snackbar-supporting-text-color: white;
 }

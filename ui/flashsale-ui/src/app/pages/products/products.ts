@@ -14,6 +14,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-products',
@@ -27,6 +28,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatInputModule,
     MatSnackBarModule,
     MatProgressSpinnerModule,
+    MatIconModule,
   ],
   templateUrl: './products.html',
   styleUrl: './products.scss',
@@ -43,7 +45,7 @@ export class ProductsComponent implements OnInit {
     private catalog: CatalogService,
     private cart: CartService,
     private snack: MatSnackBar,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {
@@ -63,7 +65,7 @@ export class ProductsComponent implements OnInit {
             this.loading = false;
             this.cdr.detectChanges();
           }
-        })
+        }),
       )
       .subscribe({
         next: (res) => {

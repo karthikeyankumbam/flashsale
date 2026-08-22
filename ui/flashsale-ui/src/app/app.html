@@ -1,13 +1,40 @@
-<mat-toolbar color="primary" class="topbar">
-  <div class="brand" routerLink="/products">FlashSale</div>
-  <span class="spacer"></span>
+<header class="siteHeader">
+  <mat-toolbar class="topbar">
+    <a class="brand" routerLink="/products" aria-label="FlashSale home">
+      <span class="brandMark"><mat-icon>bolt</mat-icon></span>
+      <span class="brandText">Flash<span>Sale</span></span>
+    </a>
 
-  <a mat-button routerLink="/products" routerLinkActive="active">Products</a>
-  <a mat-button routerLink="/cart" routerLinkActive="active">Cart</a>
-  <a mat-button routerLink="/checkout" routerLinkActive="active">Checkout</a>
-  <a mat-button routerLink="/orders" routerLinkActive="active">Orders</a>
-</mat-toolbar>
+    <div class="salePulse"><span></span> Sale is live</div>
+    <span class="spacer"></span>
+
+    <nav class="navlinks" aria-label="Primary navigation">
+      <a
+        mat-button
+        routerLink="/products"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+      >
+        <mat-icon>storefront</mat-icon><span>Shop</span>
+      </a>
+      <a mat-button routerLink="/cart" routerLinkActive="active">
+        <mat-icon>shopping_bag</mat-icon><span>Cart</span>
+      </a>
+      <a mat-button routerLink="/checkout" routerLinkActive="active">
+        <mat-icon>credit_card</mat-icon><span>Checkout</span>
+      </a>
+      <a mat-button routerLink="/orders" routerLinkActive="active">
+        <mat-icon>package_2</mat-icon><span>Orders</span>
+      </a>
+    </nav>
+  </mat-toolbar>
+</header>
 
 <main class="container">
   <router-outlet></router-outlet>
 </main>
+
+<footer class="siteFooter">
+  <span>FlashSale</span>
+  <span>Good finds. Better timing.</span>
+</footer>
