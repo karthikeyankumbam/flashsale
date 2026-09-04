@@ -24,7 +24,7 @@ spring:
               predicates:
                 - Path=/orders/**
             - id: inventory
-              uri: http://localhost:8081
+              uri: http://localhost:8082
               predicates:
                 - Path=/inventory/**
           globalcors:
