@@ -14,6 +14,7 @@ java {
 repositories { mavenCentral() }
 
 dependencies {
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.17")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.kafka:spring-kafka")
 
@@ -26,6 +27,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.springframework.kafka:spring-kafka-test")
 }
 

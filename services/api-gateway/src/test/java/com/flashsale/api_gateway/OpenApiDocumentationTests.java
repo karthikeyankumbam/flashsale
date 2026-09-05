@@ -1,0 +1,63 @@
+package com.flashsale.api_gateway;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.flashsale.api_gateway.config.OpenApiConfig;
+import com.flashsale.api_gateway.config.ApiDocsRoutes;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpStatus;
+
+import static org.assertj.core.api.Assertions.*;
+
+@SpringBootTest(classes = OpenApiDocumentationTests.TestApplication.class,
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        properties = {"security.jwt.secret=swagger-test-only-key-with-more-than-32-characters", "security.jwt.issuer=swagger-test"})
+class OpenApiDocumentationTests {
+    @Configuration(proxyBeanMethods = false)
+    @EnableAutoConfiguration
+    @Import({OpenApiConfig.class, ApiDocsRoutes.class})
+    static class TestApplication {}
+
+    @Autowired TestRestTemplate http;
+    @Autowired ObjectMapper mapper;
+
+
+    @Test
+    void documentsActualEndpointsAndTheirAuthenticationRequirements() throws Exception {
+        var response = http.getForEntity("/v3/api-docs", String.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        JsonNode api = mapper.readTree(response.getBody());
+        assertThat(api.path("info").path("title").asText()).isEqualTo("FlashSale — API Gateway");
+        assertThat(api.path("paths").has("/actuator/health")).isTrue();
+        assertThat(api.path("paths").has("/actuator/health")).isTrue();
+        assertThat(api.at("/servers/0/url").asText()).isEqualTo("/");
+        JsonNode config = mapper.readTree(http.getForObject("/v3/api-docs/swagger-config", String.class));
+        assertThat(config.path("urls").size()).isEqualTo(7);
+        assertThat(config.path("urls").toString()).contains("/openapi/catalog", "/openapi/payment", "/v3/api-docs");
+        assertThat(config.path("urls.primaryName").asText()).isEqualTo("Catalog Service");
+    }
+
+    @Test
+    void servesSwaggerUiAndItsConfigurationWithoutLogin() {
+        var ui = http.getForEntity("/swagger-ui/index.html", String.class);
+        assertThat(ui.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(ui.getBody()).contains("Swagger UI");
+        var config = http.getForEntity("/v3/api-docs/swagger-config", String.class);
+        assertThat(config.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(config.getBody()).doesNotContain("petstore.swagger.io");
+    }
+
+    @Test
+    void servesYamlDefinitionWithoutLogin() {
+        var yaml = http.getForEntity("/v3/api-docs.yaml", String.class);
+        assertThat(yaml.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(yaml.getBody()).contains("openapi:", "/actuator/health:");
+    }
+}

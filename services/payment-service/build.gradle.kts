@@ -18,6 +18,8 @@ repositories {
 }
 
 dependencies {
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.17")
+    implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
 
     // Kafka
@@ -33,6 +35,7 @@ dependencies {
 
     // Tests
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.springframework.kafka:spring-kafka-test")
 }
 

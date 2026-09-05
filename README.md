@@ -181,6 +181,11 @@ Open [http://localhost:4200](http://localhost:4200). The UI sends API requests t
 
 ## Verifying the system
 
+For browser-based API testing, restart the services after reloading Gradle and
+open [Swagger UI](http://localhost:8080/swagger-ui/index.html). Use the service
+dropdown to test each backend. See [Swagger API testing](docs/swagger-api-testing.md)
+for direct service URLs, login instructions, and the Catalog testing flow.
+
 Check the gateway:
 
 ```bash
@@ -242,6 +247,9 @@ Important development defaults include:
 The credentials and JWT secret currently committed in the configuration are development values. Use environment variables or a secrets manager before deploying the system outside a local development environment.
 
 ## Building and testing
+
+For Catalog product management, authenticated API examples, and its isolated
+database tests, see [Catalog backend](docs/catalog-backend.md).
 
 Build or test a backend service from its directory:
 

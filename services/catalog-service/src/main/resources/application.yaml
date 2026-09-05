@@ -4,9 +4,12 @@ server:
 spring:
   application:
     name: catalog-service
+  jackson:
+    deserialization:
+      accept-float-as-int: false
   data:
     mongodb:
-      uri: mongodb://localhost:27017/catalog
+      uri: ${CATALOG_MONGODB_URI:mongodb://localhost:27017/catalog}
 
 security:
   jwt:
@@ -19,3 +22,15 @@ management:
     web:
       exposure:
         include: health,info,metrics,prometheus
+
+springdoc:
+  api-docs:
+    enabled: ${API_DOCS_ENABLED:true}
+    version: OPENAPI_3_0
+  swagger-ui:
+    enabled: ${API_DOCS_ENABLED:true}
+    disable-swagger-default-url: true
+    operations-sorter: alpha
+    tags-sorter: alpha
+    display-request-duration: true
+    persist-authorization: false

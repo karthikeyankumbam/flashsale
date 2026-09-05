@@ -29,3 +29,15 @@ spring:
     web:
       exposure:
         include: health,info,metrics,prometheus
+
+springdoc:
+  api-docs:
+    enabled: ${API_DOCS_ENABLED:true}
+    version: OPENAPI_3_0
+  swagger-ui:
+    enabled: ${API_DOCS_ENABLED:true}
+    disable-swagger-default-url: true
+    operations-sorter: alpha
+    tags-sorter: alpha
+    display-request-duration: true
+    persist-authorization: false

@@ -1,10 +1,11 @@
 package com.flashsale.auth.api.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public record RegisterRequest(
-        @Email @NotBlank String email,
-        @NotBlank @Size(min = 8, max = 72) String password
+        @Schema(example = "owner@example.com") @Email @NotBlank String email,
+        @Schema(example = "use-your-own-password", format = "password", accessMode = Schema.AccessMode.WRITE_ONLY) @NotBlank @Size(min = 8, max = 72) String password
 ) {}

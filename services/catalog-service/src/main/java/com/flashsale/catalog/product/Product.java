@@ -7,6 +7,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 
 @Document(collection = "products")
@@ -24,12 +25,15 @@ public class Product {
     private String category;
 
     @NotNull
-    private Long price; // store minor units if you want (paise) or plain INR value
+    private Long price; // Existing whole-currency-unit convention; do not rescale stored values.
 
     @NotBlank
     private String currency; // "INR"
 
     private boolean active = true;
+
+    private String description = "";
+    private List<String> images = List.of();
 
     // flexible product attributes: { "color":"Black", "storage":"128GB" }
     private Map<String, Object> attributes;
@@ -68,6 +72,12 @@ public class Product {
 
     public boolean isActive() { return active; }
     public void setActive(boolean active) { this.active = active; }
+
+    public String getDescription() { return description == null ? "" : description; }
+    public void setDescription(String description) { this.description = description; }
+
+    public List<String> getImages() { return images == null ? List.of() : images; }
+    public void setImages(List<String> images) { this.images = images; }
 
     public Map<String, Object> getAttributes() { return attributes; }
     public void setAttributes(Map<String, Object> attributes) { this.attributes = attributes; }

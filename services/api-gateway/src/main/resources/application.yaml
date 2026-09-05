@@ -50,3 +50,40 @@ management:
     web:
       exposure:
         include: health,info,metrics,prometheus
+
+springdoc:
+  api-docs:
+    enabled: ${API_DOCS_ENABLED:true}
+    version: OPENAPI_3_0
+  swagger-ui:
+    enabled: ${API_DOCS_ENABLED:true}
+    disable-swagger-default-url: true
+    operations-sorter: alpha
+    tags-sorter: alpha
+    display-request-duration: true
+    persist-authorization: false
+    urls-primary-name: Catalog Service
+    urls:
+      - name: Catalog Service
+        url: /openapi/catalog
+      - name: Auth Service
+        url: /openapi/auth
+      - name: Cart Service
+        url: /openapi/cart
+      - name: Order Service
+        url: /openapi/order
+      - name: Inventory Service
+        url: /openapi/inventory
+      - name: Payment Service
+        url: /openapi/payment
+      - name: API Gateway
+        url: /v3/api-docs
+
+api-docs:
+  services:
+    auth: ${AUTH_SERVICE_URL:http://localhost:8086}
+    catalog: ${CATALOG_SERVICE_URL:http://localhost:8085}
+    cart: ${CART_SERVICE_URL:http://localhost:8084}
+    order: ${ORDER_SERVICE_URL:http://localhost:8081}
+    inventory: ${INVENTORY_SERVICE_URL:http://localhost:8082}
+    payment: ${PAYMENT_SERVICE_URL:http://localhost:8083}

@@ -26,3 +26,15 @@ security:
     issuer: flashsale-auth
     secret: "4adc46d0108bffc85f56acf526af842017b3ad6996476b28643ea3ae7c0c5210"
     accessTokenTtlMinutes: 60
+
+springdoc:
+  api-docs:
+    enabled: ${API_DOCS_ENABLED:true}
+    version: OPENAPI_3_0
+  swagger-ui:
+    enabled: ${API_DOCS_ENABLED:true}
+    disable-swagger-default-url: true
+    operations-sorter: alpha
+    tags-sorter: alpha
+    display-request-duration: true
+    persist-authorization: false
