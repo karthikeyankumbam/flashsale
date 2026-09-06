@@ -71,7 +71,7 @@ flashsale/
 
 | Component | Port | Responsibility | Data dependency |
 | --- | ---: | --- | --- |
-| Angular UI | `4200` | Customer-facing storefront | API Gateway |
+| Angular UI | `4200` | Customer storefront and catalog management | API Gateway |
 | API Gateway | `8080` | Single HTTP entry point and CORS | Backend services |
 | Order Service | `8081` | Order creation and order lifecycle | PostgreSQL, Kafka |
 | Inventory Service | `8082` | Stock reservation | PostgreSQL, Kafka |
@@ -178,6 +178,18 @@ npm start
 ```
 
 Open [http://localhost:4200](http://localhost:4200). The UI sends API requests to the gateway at `http://localhost:8080`.
+
+### 4. Use the catalog UI
+
+- Open [the storefront](http://localhost:4200/products) to search, filter, sort,
+  page through products, open shareable product details, and add a chosen quantity
+  to the cart.
+- Open [Catalog Manage](http://localhost:4200/catalog-admin) to sign in with an
+  `ADMIN` account. From there you can create hidden drafts, preview the
+  customer-facing content, edit products, and publish or hide them.
+- Registration creates a `USER` account. Follow the
+  [local administrator setup](docs/catalog-backend.md#getting-an-administrator-token-locally)
+  before using the management screen with a new account.
 
 ## Verifying the system
 

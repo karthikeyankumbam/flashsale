@@ -1,0 +1,336 @@
+.backLink {
+  display: inline-flex;
+  margin-bottom: 26px;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.backLink:hover {
+  color: var(--coral-dark);
+}
+.backLink mat-icon {
+  font-size: 18px;
+}
+.loadingState {
+  display: flex;
+  min-height: 470px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.productDetail {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(340px, 0.95fr);
+  gap: 62px;
+}
+.gallery {
+  min-width: 0;
+}
+.mainImage {
+  position: relative;
+  display: grid;
+  min-height: 560px;
+  overflow: hidden;
+  place-items: center;
+  border-radius: 32px;
+  background: #f1dfc7;
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+.mainImage::after {
+  position: absolute;
+  z-index: 0;
+  width: 310px;
+  height: 310px;
+  border: 1px solid rgba(32, 29, 25, 0.12);
+  border-radius: 50%;
+  content: '';
+}
+.mainImage > img {
+  position: absolute;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.imagePlaceholder {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  gap: 10px;
+}
+.imagePlaceholder span {
+  font-size: 132px;
+  font-weight: 800;
+  letter-spacing: -0.09em;
+}
+.imagePlaceholder small {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.categoryBadge {
+  position: absolute;
+  z-index: 2;
+  top: 18px;
+  left: 18px;
+  padding: 8px 11px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.82);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  backdrop-filter: blur(10px);
+}
+.thumbnails {
+  display: flex;
+  margin-top: 12px;
+  gap: 10px;
+  overflow-x: auto;
+}
+.thumbnails button {
+  display: grid;
+  flex: 0 0 74px;
+  width: 74px;
+  height: 74px;
+  padding: 0;
+  overflow: hidden;
+  place-items: center;
+  border: 2px solid transparent;
+  border-radius: 15px;
+  color: var(--muted);
+  background: var(--surface-soft);
+  cursor: pointer;
+}
+.thumbnails button.active {
+  border-color: var(--coral);
+}
+.thumbnails img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.productInfo {
+  align-self: center;
+}
+.eyebrow {
+  display: block;
+  color: var(--coral);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.sku {
+  display: block;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+.productInfo h1 {
+  margin: 13px 0 18px;
+  font-size: clamp(38px, 5vw, 64px);
+  line-height: 1.01;
+  letter-spacing: -0.06em;
+}
+.price {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.045em;
+}
+.description {
+  margin: 25px 0 30px;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.8;
+}
+.buyBox {
+  display: flex;
+  padding: 15px;
+  align-items: end;
+  gap: 12px;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background: var(--surface);
+  box-shadow: 0 13px 34px rgba(42, 31, 22, 0.07);
+}
+.buyBox label span {
+  display: block;
+  margin: 0 0 6px 3px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.buyBox input {
+  width: 74px;
+  height: 48px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  outline: none;
+  background: #fbf8f2;
+  font: inherit;
+  text-align: center;
+}
+.buyBox button {
+  flex: 1;
+  height: 48px;
+  border-radius: 14px;
+}
+.buyBox mat-icon {
+  margin-right: 7px;
+}
+.reservationNote {
+  display: flex;
+  margin: 14px 3px 0;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+.reservationNote mat-icon {
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  font-size: 16px;
+}
+.specifications {
+  display: grid;
+  grid-template-columns: 0.75fr 1.25fr;
+  margin-top: 74px;
+  padding: 42px;
+  gap: 54px;
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  background: var(--surface);
+}
+.specifications h2 {
+  margin: 8px 0 10px;
+  font-size: 30px;
+  letter-spacing: -0.04em;
+}
+.specifications > div > p {
+  max-width: 320px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+.specifications dl {
+  margin: 0;
+}
+.specifications dl > div {
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+  gap: 18px;
+}
+.specifications dl > div:first-child {
+  padding-top: 0;
+}
+.specifications dl > div:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+.specifications dt {
+  color: var(--muted);
+  font-size: 12px;
+  text-transform: capitalize;
+}
+.specifications dd {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  word-break: break-word;
+}
+.noSpecifications {
+  align-self: center;
+  color: var(--muted);
+}
+.stateCard {
+  max-width: 720px;
+  margin: 40px auto;
+  padding: 70px 40px;
+  border: 1px dashed rgba(32, 29, 25, 0.18);
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.5);
+  text-align: center;
+}
+.stateIcon {
+  display: grid;
+  width: 68px;
+  height: 68px;
+  margin: 0 auto 22px;
+  place-items: center;
+  border-radius: 22px;
+  color: var(--coral);
+  background: var(--coral-soft);
+}
+.stateCard h1 {
+  margin: 12px 0;
+  font-size: 35px;
+  letter-spacing: -0.045em;
+}
+.stateCard p {
+  max-width: 500px;
+  margin: 0 auto 24px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+.stateCard a,
+.stateCard button {
+  border-radius: 14px;
+}
+
+@media (max-width: 900px) {
+  .productDetail {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .mainImage {
+    min-height: 470px;
+  }
+  .specifications {
+    grid-template-columns: 1fr;
+    gap: 26px;
+  }
+}
+@media (max-width: 560px) {
+  .mainImage {
+    min-height: 360px;
+    border-radius: 25px;
+  }
+  .imagePlaceholder span {
+    font-size: 92px;
+  }
+  .productInfo h1 {
+    font-size: 40px;
+  }
+  .buyBox {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .buyBox label,
+  .buyBox input {
+    width: 100%;
+  }
+  .specifications {
+    margin-top: 48px;
+    padding: 28px 23px;
+  }
+  .specifications dl > div {
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+}

@@ -1,0 +1,350 @@
+<section class="adminHero">
+  <div>
+    <span class="eyebrow">Catalog owner workspace</span>
+    <h1>Shape what customers see.</h1>
+    <p>Create, review, publish, and maintain products from one focused workspace.</p>
+  </div>
+  <div class="adminBadge" aria-hidden="true">
+    <mat-icon>inventory_2</mat-icon><span>Product control</span>
+  </div>
+</section>
+
+<div class="loadingState" *ngIf="restoring">
+  <mat-spinner diameter="36"></mat-spinner><span>Restoring your admin session…</span>
+</div>
+
+<section class="loginCard" *ngIf="!restoring && !auth.user()">
+  <div class="loginIntro">
+    <div class="iconBox"><mat-icon>shield_person</mat-icon></div>
+    <span class="eyebrow">Administrator access</span>
+    <h2>Sign in to manage products</h2>
+    <p>Only an account with the <strong>ADMIN</strong> role can create or change catalog items.</p>
+  </div>
+  <form (ngSubmit)="signIn()">
+    <label>
+      <span>Email</span>
+      <input
+        name="email"
+        type="email"
+        [(ngModel)]="loginEmail"
+        autocomplete="username"
+        placeholder="owner@example.com"
+      />
+    </label>
+    <label>
+      <span>Password</span>
+      <input
+        name="password"
+        type="password"
+        [(ngModel)]="loginPassword"
+        autocomplete="current-password"
+        placeholder="Your password"
+      />
+    </label>
+    <p class="formError" *ngIf="loginError"><mat-icon>error_outline</mat-icon>{{ loginError }}</p>
+    <button mat-raised-button color="primary" type="submit" [disabled]="signingIn">
+      <mat-spinner *ngIf="signingIn" diameter="18"></mat-spinner>
+      <mat-icon *ngIf="!signingIn">login</mat-icon>{{ signingIn ? 'Signing in…' : 'Sign in' }}
+    </button>
+    <small
+      >Registration creates a customer account. Ask the project owner to assign the ADMIN role
+      before signing in here.</small
+    >
+  </form>
+</section>
+
+<ng-container *ngIf="!restoring && auth.user() as admin">
+  <section class="sessionBar">
+    <div class="avatar">{{ admin.email.charAt(0).toUpperCase() }}</div>
+    <div>
+      <strong>{{ admin.email }}</strong
+      ><span>Signed in as catalog administrator</span>
+    </div>
+    <span class="spacer"></span>
+    <button mat-button (click)="signOut()"><mat-icon>logout</mat-icon>Sign out</button>
+  </section>
+
+  <section class="workspaceHeader">
+    <div>
+      <span class="eyebrow">Inventory of products</span>
+      <h2>{{ totalElements }} {{ totalElements === 1 ? 'product' : 'products' }}</h2>
+    </div>
+    <button mat-raised-button color="primary" (click)="newProduct()">
+      <mat-icon>add</mat-icon>New product
+    </button>
+  </section>
+
+  <section class="managerGrid">
+    <aside class="productPanel">
+      <div class="listFilters">
+        <label class="searchField">
+          <mat-icon>search</mat-icon>
+          <input
+            [(ngModel)]="query"
+            (keyup.enter)="applyListFilters()"
+            placeholder="Search name or SKU"
+            aria-label="Search managed products"
+          />
+        </label>
+        <select
+          [(ngModel)]="visibility"
+          (change)="applyListFilters()"
+          aria-label="Filter product visibility"
+        >
+          <option value="all">All products</option>
+          <option value="published">Published</option>
+          <option value="hidden">Hidden</option>
+        </select>
+        <button mat-icon-button (click)="applyListFilters()" aria-label="Refresh products">
+          <mat-icon>refresh</mat-icon>
+        </button>
+      </div>
+
+      <div class="panelLoading" *ngIf="loading"><mat-spinner diameter="30"></mat-spinner></div>
+      <div class="inlineError" *ngIf="!loading && listError">
+        <mat-icon>cloud_off</mat-icon><span>{{ listError }}</span
+        ><button mat-button (click)="loadProducts()">Retry</button>
+      </div>
+      <div class="emptyList" *ngIf="!loading && !listError && products.length === 0">
+        <mat-icon>inventory_2</mat-icon><strong>No products found</strong
+        ><span>Change the filter or create a product.</span>
+      </div>
+
+      <div class="productList" *ngIf="!loading && !listError">
+        <article
+          *ngFor="let product of products; trackBy: trackProduct"
+          [class.selected]="editingSku === product.sku"
+        >
+          <button class="productSummary" (click)="editProduct(product)">
+            <span class="productInitial">{{ product.name.charAt(0) }}</span>
+            <span class="summaryText">
+              <strong>{{ product.name }}</strong
+              ><small
+                >{{ product.sku }} ·
+                {{ product.price | currency: product.currency : 'symbol' : '1.0-0' }}</small
+              >
+            </span>
+            <span class="status" [class.published]="product.active">{{
+              product.active ? 'Published' : 'Hidden'
+            }}</span>
+          </button>
+          <div class="rowActions">
+            <button mat-button (click)="editProduct(product)"><mat-icon>edit</mat-icon>Edit</button>
+            <a
+              *ngIf="product.active"
+              mat-button
+              [routerLink]="['/products', product.sku]"
+              target="_blank"
+              ><mat-icon>open_in_new</mat-icon>View</a
+            >
+            <button mat-button class="visibilityButton" (click)="changeVisibility(product)">
+              <mat-icon>{{ product.active ? 'visibility_off' : 'visibility' }}</mat-icon
+              >{{ product.active ? 'Hide' : 'Publish' }}
+            </button>
+          </div>
+        </article>
+      </div>
+
+      <nav class="pager" *ngIf="totalPages > 1" aria-label="Managed product pages">
+        <button
+          mat-icon-button
+          (click)="previousPage()"
+          [disabled]="page === 0"
+          aria-label="Previous page"
+        >
+          <mat-icon>west</mat-icon>
+        </button>
+        <span>{{ page + 1 }} / {{ totalPages }}</span>
+        <button
+          mat-icon-button
+          (click)="nextPage()"
+          [disabled]="page + 1 >= totalPages"
+          aria-label="Next page"
+        >
+          <mat-icon>east</mat-icon>
+        </button>
+      </nav>
+    </aside>
+
+    <section class="editorPanel">
+      <div class="editorHeading">
+        <div>
+          <span class="eyebrow">{{ editingSku ? 'Editing product' : 'New product' }}</span>
+          <h2>{{ editingSku || 'Create a catalog item' }}</h2>
+        </div>
+        <button *ngIf="editingSku" mat-button (click)="newProduct()">
+          <mat-icon>close</mat-icon>Close
+        </button>
+      </div>
+
+      <div class="editorLayout">
+        <form class="productForm" (ngSubmit)="saveProduct()" novalidate>
+          <div class="fieldRow">
+            <label>
+              <span>SKU <b>*</b></span>
+              <input
+                name="sku"
+                [(ngModel)]="form.sku"
+                [disabled]="!!editingSku"
+                maxlength="128"
+                placeholder="PHONE-128-BLK"
+                [class.invalid]="fieldErrors['sku']"
+              />
+              <small *ngIf="fieldErrors['sku']">{{ fieldErrors['sku'] }}</small>
+              <small *ngIf="editingSku && !fieldErrors['sku']"
+                >SKU cannot be changed after creation.</small
+              >
+            </label>
+            <label>
+              <span>Product name <b>*</b></span>
+              <input
+                name="name"
+                [(ngModel)]="form.name"
+                maxlength="200"
+                placeholder="Everyday headphones"
+                [class.invalid]="fieldErrors['name']"
+              />
+              <small *ngIf="fieldErrors['name']">{{ fieldErrors['name'] }}</small>
+            </label>
+          </div>
+
+          <div class="fieldRow threeColumns">
+            <label>
+              <span>Category <b>*</b></span>
+              <input
+                name="category"
+                [(ngModel)]="form.category"
+                maxlength="100"
+                placeholder="Audio"
+                [class.invalid]="fieldErrors['category']"
+              />
+              <small *ngIf="fieldErrors['category']">{{ fieldErrors['category'] }}</small>
+            </label>
+            <label>
+              <span>Price <b>*</b></span>
+              <input
+                name="price"
+                type="number"
+                min="1"
+                step="1"
+                [(ngModel)]="form.price"
+                placeholder="4999"
+                [class.invalid]="fieldErrors['price']"
+              />
+              <small *ngIf="fieldErrors['price']">{{ fieldErrors['price'] }}</small>
+            </label>
+            <label>
+              <span>Currency <b>*</b></span>
+              <input
+                name="currency"
+                [(ngModel)]="form.currency"
+                maxlength="3"
+                placeholder="INR"
+                [class.invalid]="fieldErrors['currency']"
+              />
+              <small *ngIf="fieldErrors['currency']">{{ fieldErrors['currency'] }}</small>
+            </label>
+          </div>
+
+          <label>
+            <span>Description</span>
+            <textarea
+              name="description"
+              [(ngModel)]="form.description"
+              maxlength="5000"
+              rows="5"
+              placeholder="Help customers understand the product and who it is for."
+            ></textarea>
+            <small>{{ form.description.length }} / 5000</small>
+          </label>
+
+          <label>
+            <span>Image links</span>
+            <textarea
+              name="images"
+              [(ngModel)]="form.imageLines"
+              rows="4"
+              placeholder="https://example.com/product-front.jpg&#10;https://example.com/product-side.jpg"
+              [class.invalid]="fieldErrors['images']"
+            ></textarea>
+            <small *ngIf="fieldErrors['images']">{{ fieldErrors['images'] }}</small>
+            <small *ngIf="!fieldErrors['images']"
+              >One HTTP or HTTPS URL per line, up to eight.</small
+            >
+          </label>
+
+          <label>
+            <span>Specifications</span>
+            <textarea
+              class="codeInput"
+              name="attributes"
+              [(ngModel)]="form.attributesText"
+              rows="6"
+              placeholder='{"color":"Black","storage":"128 GB"}'
+              [class.invalid]="fieldErrors['attributes']"
+            ></textarea>
+            <small *ngIf="fieldErrors['attributes']">{{ fieldErrors['attributes'] }}</small>
+            <small *ngIf="!fieldErrors['attributes']"
+              >Use a JSON object with customer-facing names and values.</small
+            >
+          </label>
+
+          <label class="publishToggle">
+            <input name="active" type="checkbox" [(ngModel)]="form.active" />
+            <span
+              ><strong>Publish for customers</strong
+              ><small>{{
+                form.active
+                  ? 'Visible in the storefront after saving.'
+                  : 'Hidden while you review it.'
+              }}</small></span
+            >
+          </label>
+
+          <p class="formError" *ngIf="formError">
+            <mat-icon>error_outline</mat-icon>{{ formError }}
+          </p>
+          <div class="formActions">
+            <button mat-stroked-button type="button" (click)="newProduct()">Clear</button>
+            <button mat-raised-button color="primary" type="submit" [disabled]="saving">
+              <mat-spinner *ngIf="saving" diameter="18"></mat-spinner>
+              <mat-icon *ngIf="!saving">save</mat-icon
+              >{{ saving ? 'Saving…' : editingSku ? 'Save changes' : 'Create product' }}
+            </button>
+          </div>
+        </form>
+
+        <aside class="previewPanel">
+          <div class="previewHeading">
+            <span>Customer preview</span
+            ><small>{{ form.active ? 'Published' : 'Hidden draft' }}</small>
+          </div>
+          <div class="previewVisual">
+            <img
+              *ngIf="previewImageAvailable()"
+              [src]="previewImages()[0]"
+              [alt]="form.name || 'Product preview'"
+              (error)="markPreviewImageBroken()"
+            />
+            <span *ngIf="!previewImageAvailable()">{{ (form.name || 'P').charAt(0) }}</span>
+            <small>{{ form.category || 'Category' }}</small>
+          </div>
+          <div class="previewBody">
+            <span class="previewSku">{{ form.sku || 'NEW-SKU' }}</span>
+            <h3>{{ form.name || 'Your product name' }}</h3>
+            <div class="previewPrice">
+              {{ form.price || 0 | currency: form.currency || 'INR' : 'symbol' : '1.0-0' }}
+            </div>
+            <p>{{ form.description || 'A useful description will appear here for customers.' }}</p>
+            <dl *ngIf="previewAttributes().length">
+              <div *ngFor="let attribute of previewAttributes()">
+                <dt>{{ attribute[0] }}</dt>
+                <dd>{{ attribute[1] }}</dd>
+              </div>
+            </dl>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </section>
+</ng-container>

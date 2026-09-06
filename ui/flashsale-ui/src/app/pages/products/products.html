@@ -1,85 +1,152 @@
-<section class="hero">
+<section class="catalogHero">
   <div class="heroCopy">
-    <div class="eyebrow"><span></span> Limited-time drops</div>
-    <h1>The good stuff,<br /><em>gone fast.</em></h1>
-    <p>Fresh finds, honest prices, and no time for second thoughts.</p>
+    <div class="eyebrow"><span></span> Product catalog</div>
+    <h1>Find what fits<br /><em>your everyday.</em></h1>
+    <p>Browse the complete collection with clear details, useful filters, and no guesswork.</p>
   </div>
-
-  <div class="heroArt" aria-hidden="true">
-    <span class="sticker">UP TO<br /><b>40% OFF</b></span>
-    <span class="spark sparkOne">✦</span>
-    <span class="spark sparkTwo">✦</span>
-    <div class="saleCard">
-      <span>Today only</span>
-      <strong>Catch it<br />before it’s gone.</strong>
-    </div>
+  <div class="heroTiles" aria-hidden="true">
+    <div class="tile tileLarge"><mat-icon>chair</mat-icon><span>Designed to use</span></div>
+    <div class="tile tileSmall"><mat-icon>headphones</mat-icon></div>
+    <div class="tile tileAccent"><mat-icon>auto_awesome</mat-icon><span>Fresh picks</span></div>
   </div>
 </section>
 
-<section class="searchBar" aria-label="Product search">
-  <mat-icon>search</mat-icon>
-  <input
-    [(ngModel)]="query"
-    (keyup.enter)="load()"
-    placeholder="What are you looking for?"
-    aria-label="Search products"
-  />
-  <button mat-raised-button color="primary" (click)="load()" [disabled]="loading">
-    Search deals
+<section class="filterPanel" aria-label="Filter products">
+  <label class="searchField">
+    <span>Search the catalog</span>
+    <div>
+      <mat-icon>search</mat-icon>
+      <input
+        [(ngModel)]="query"
+        (keyup.enter)="search()"
+        placeholder="Product name or SKU"
+        aria-label="Search by product name or SKU"
+      />
+    </div>
+  </label>
+  <label>
+    <span>Category</span>
+    <select [(ngModel)]="category" (change)="filterChanged()" aria-label="Filter by category">
+      <option value="">All categories</option>
+      <option *ngFor="let item of categories" [value]="item">{{ item }}</option>
+    </select>
+  </label>
+  <label>
+    <span>Sort by</span>
+    <select [(ngModel)]="sort" (change)="filterChanged()" aria-label="Sort products">
+      <option *ngFor="let option of sortOptions" [value]="option.value">{{ option.label }}</option>
+    </select>
+  </label>
+  <button
+    mat-raised-button
+    color="primary"
+    class="searchButton"
+    (click)="search()"
+    [disabled]="loading"
+  >
+    Show products
   </button>
 </section>
 
 <div class="sectionHeader">
   <div>
-    <div class="eyebrow">Curated for you</div>
-    <h2>Trending right now</h2>
+    <div class="eyebrow">Explore the collection</div>
+    <h2>{{ query || category ? 'Matching products' : 'All products' }}</h2>
   </div>
-  <div class="resultMeta">
-    <span class="liveDot"></span>
-    {{ products.length }} {{ products.length === 1 ? 'find' : 'finds' }} for {{ userId }}
+  <div class="resultActions">
+    <span>{{ totalElements }} {{ totalElements === 1 ? 'product' : 'products' }}</span>
+    <button
+      *ngIf="query || category || sort !== 'updated'"
+      mat-button
+      class="resetButton"
+      (click)="resetFilters()"
+    >
+      <mat-icon>restart_alt</mat-icon>Reset
+    </button>
   </div>
 </div>
 
-<div class="center" *ngIf="loading">
-  <mat-spinner diameter="36"></mat-spinner>
-  <span>Hunting down the best deals…</span>
+<div class="loadingState" *ngIf="loading" aria-live="polite">
+  <mat-spinner diameter="38"></mat-spinner><span>Loading the catalog…</span>
 </div>
 
-<div class="grid" *ngIf="!loading">
-  <mat-card class="product" *ngFor="let p of products">
-    <div class="productVisual">
-      <span class="category">{{ p.category }}</span>
-      <span class="productGlyph">{{ p.name.charAt(0) }}</span>
-      <span class="dealTag">Quick pick</span>
+<section class="stateCard errorState" *ngIf="!loading && errorMessage" role="alert">
+  <div class="stateIcon"><mat-icon>cloud_off</mat-icon></div>
+  <h3>We couldn’t load the products</h3>
+  <p>{{ errorMessage }}</p>
+  <button mat-raised-button color="primary" (click)="load()">Try again</button>
+</section>
+
+<div class="productGrid" *ngIf="!loading && !errorMessage && products.length">
+  <article class="productCard" *ngFor="let product of products; trackBy: trackProduct">
+    <a
+      class="productVisual"
+      [routerLink]="['/products', product.sku]"
+      [queryParams]="listingParams()"
+      [attr.aria-label]="'View ' + product.name"
+    >
+      <img
+        *ngIf="hasImage(product)"
+        [src]="product.images![0]"
+        [alt]="product.name"
+        (error)="markImageBroken(product.sku)"
+      />
+      <span class="productGlyph" *ngIf="!hasImage(product)">{{ product.name.charAt(0) }}</span>
+      <span class="categoryBadge">{{ product.category }}</span>
+      <span class="viewHint"><mat-icon>arrow_outward</mat-icon></span>
+    </a>
+
+    <div class="productBody">
+      <span class="sku">{{ product.sku }}</span>
+      <a
+        class="productName"
+        [routerLink]="['/products', product.sku]"
+        [queryParams]="listingParams()"
+        >{{ product.name }}</a
+      >
+      <p class="description">
+        {{ product.description || 'Open the product to see its details and specifications.' }}
+      </p>
+      <div class="productFooter">
+        <div class="price">
+          {{ product.price | currency: product.currency : 'symbol' : '1.0-0' }}
+        </div>
+        <div class="cartControl">
+          <input
+            type="number"
+            min="1"
+            max="99"
+            [(ngModel)]="quantities[product.sku]"
+            [attr.aria-label]="'Quantity for ' + product.name"
+          />
+          <button mat-raised-button color="primary" (click)="addToCart(product)">
+            <mat-icon>add_shopping_cart</mat-icon>Add
+          </button>
+        </div>
+      </div>
     </div>
-
-    <mat-card-content>
-      <div class="sku">{{ p.sku }}</div>
-      <h3>{{ p.name }}</h3>
-
-      <div class="meta" *ngIf="p.attributes">
-        <span *ngFor="let kv of p.attributes | keyvalue" class="chip">
-          {{ kv.value }}
-        </span>
-      </div>
-    </mat-card-content>
-
-    <mat-card-actions>
-      <div class="price">
-        <span>{{ p.currency }}</span
-        >{{ p.price | number: '1.0-2' }}
-      </div>
-      <button mat-raised-button color="primary" (click)="addToCart(p)">
-        <mat-icon>add_shopping_cart</mat-icon>
-        Add
-      </button>
-    </mat-card-actions>
-  </mat-card>
+  </article>
 </div>
 
-<div class="empty" *ngIf="!loading && products.length === 0">
-  <div class="emptyIcon"><mat-icon>search_off</mat-icon></div>
-  <h3>No deals found</h3>
-  <p>Try a broader search or come back for the next drop.</p>
-  <button mat-stroked-button (click)="query = ''; load()">Show everything</button>
-</div>
+<section class="stateCard" *ngIf="!loading && !errorMessage && products.length === 0">
+  <div class="stateIcon"><mat-icon>search_off</mat-icon></div>
+  <h3>No products match those filters</h3>
+  <p>Try another search or reset the catalog to see everything currently published.</p>
+  <button mat-stroked-button (click)="resetFilters()">Reset filters</button>
+</section>
+
+<nav
+  class="pagination"
+  *ngIf="!loading && !errorMessage && totalPages > 1"
+  aria-label="Catalog pages"
+>
+  <button mat-stroked-button (click)="previousPage()" [disabled]="page === 0">
+    <mat-icon>west</mat-icon>Previous
+  </button>
+  <span
+    >Page <strong>{{ page + 1 }}</strong> of {{ totalPages }}</span
+  >
+  <button mat-stroked-button (click)="nextPage()" [disabled]="page + 1 >= totalPages">
+    Next<mat-icon>east</mat-icon>
+  </button>
+</nav>
