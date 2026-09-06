@@ -54,7 +54,7 @@
   color: var(--coral);
 }
 
-.salePulse {
+.catalogStatus {
   display: inline-flex;
   align-items: center;
   gap: 7px;
@@ -69,12 +69,11 @@
   text-transform: uppercase;
 }
 
-.salePulse span {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #35ad72;
-  box-shadow: 0 0 0 4px rgba(53, 173, 114, 0.13);
+.catalogStatus mat-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--coral);
+  font-size: 16px;
 }
 
 .spacer {
@@ -146,7 +145,7 @@
     padding: 0 8px 0 14px;
     border-radius: 18px;
   }
-  .salePulse {
+  .catalogStatus {
     display: none;
   }
   .navlinks {

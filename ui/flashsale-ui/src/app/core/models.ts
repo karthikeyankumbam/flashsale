@@ -5,7 +5,64 @@ export interface Product {
   price: number;
   currency: string;
   active: boolean;
-  attributes?: Record<string, any>;
+  description?: string;
+  images?: string[];
+  attributes?: Record<string, unknown>;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface ProductPage {
+  content: Product[];
+  number: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  first: boolean;
+  last: boolean;
+  empty: boolean;
+  numberOfElements: number;
+}
+
+export interface CatalogQuery {
+  query?: string;
+  category?: string;
+  currency?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  page?: number;
+  size?: number;
+  sort?: 'name-asc' | 'name-desc' | 'price-asc' | 'price-desc' | 'newest' | 'updated';
+}
+
+export interface ProductWriteRequest {
+  sku?: string;
+  name: string;
+  category: string;
+  price: number;
+  currency: string;
+  active: boolean;
+  description: string;
+  images: string[];
+  attributes: Record<string, unknown>;
+}
+
+export interface ApiProblem {
+  status?: number;
+  title?: string;
+  detail?: string;
+  errors?: Record<string, string>;
+}
+
+export interface AuthResponse {
+  accessToken: string;
+  expiresInSeconds: number;
+}
+
+export interface AuthenticatedUser {
+  userId: string;
+  email: string;
+  roles: string[];
 }
 
 export interface CartItem {

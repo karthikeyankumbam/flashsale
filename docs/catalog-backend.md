@@ -186,8 +186,9 @@ pagination, legacy documents, and simultaneous duplicate creation. It uses its o
 database and never targets the local application catalog. Integration tests fail
 if Docker is unavailable; they are excluded from the default test task.
 
-This milestone supplies the backend. The product detail and management screens
-remain the next Catalog UI milestone.
+The Angular catalog UI is available at `/products`, with shareable product details
+at `/products/{sku}`. The administrator workspace at `/catalog-admin` uses these
+secured endpoints for draft creation, preview, editing, publishing, and hiding.
 
 Verification recorded on 2026-09-05: `./gradlew test bootJar --no-daemon` passed
 with 48 tests, zero failures, and zero skipped tests in the default suite. The six

@@ -1,0 +1,101 @@
+<a class="backLink" routerLink="/products" [queryParams]="returnParams">
+  <mat-icon>west</mat-icon>Back to catalog
+</a>
+
+<div class="loadingState" *ngIf="loading" aria-live="polite">
+  <mat-spinner diameter="38"></mat-spinner><span>Loading product details…</span>
+</div>
+
+<section class="stateCard" *ngIf="!loading && unavailable">
+  <div class="stateIcon"><mat-icon>inventory_2</mat-icon></div>
+  <span class="eyebrow">Product unavailable</span>
+  <h1>This item is not in the catalog</h1>
+  <p>
+    It may have been hidden or the link may be outdated. Return to the catalog to keep browsing.
+  </p>
+  <a mat-raised-button color="primary" routerLink="/products" [queryParams]="returnParams"
+    >Browse products</a
+  >
+</section>
+
+<section class="stateCard" *ngIf="!loading && failed">
+  <div class="stateIcon"><mat-icon>cloud_off</mat-icon></div>
+  <span class="eyebrow">Connection problem</span>
+  <h1>We couldn’t load this product</h1>
+  <p>The catalog did not respond. Try again without losing this product link.</p>
+  <button mat-raised-button color="primary" (click)="load()">Try again</button>
+</section>
+
+<article class="productDetail" *ngIf="!loading && product as item">
+  <section class="gallery" aria-label="Product images">
+    <div class="mainImage">
+      <img
+        *ngIf="imageAvailable(item.images?.[selectedImage])"
+        [src]="item.images![selectedImage]"
+        [alt]="item.name"
+        (error)="markImageBroken(item.images![selectedImage])"
+      />
+      <div class="imagePlaceholder" *ngIf="!imageAvailable(item.images?.[selectedImage])">
+        <span>{{ item.name.charAt(0) }}</span>
+        <small>Image not available</small>
+      </div>
+      <span class="categoryBadge">{{ item.category }}</span>
+    </div>
+
+    <div class="thumbnails" *ngIf="item.images && item.images.length > 1">
+      <button
+        *ngFor="let image of item.images; let index = index"
+        [class.active]="index === selectedImage"
+        (click)="chooseImage(index)"
+        [attr.aria-label]="'Show image ' + (index + 1)"
+      >
+        <img *ngIf="imageAvailable(image)" [src]="image" alt="" (error)="markImageBroken(image)" />
+        <mat-icon *ngIf="!imageAvailable(image)">image_not_supported</mat-icon>
+      </button>
+    </div>
+  </section>
+
+  <section class="productInfo">
+    <span class="eyebrow">{{ item.category }}</span>
+    <span class="sku">SKU {{ item.sku }}</span>
+    <h1>{{ item.name }}</h1>
+    <div class="price">{{ item.price | currency: item.currency : 'symbol' : '1.0-0' }}</div>
+    <p class="description">
+      {{
+        item.description ||
+          'This product does not have a description yet. Its available specifications are listed below.'
+      }}
+    </p>
+
+    <div class="buyBox">
+      <label>
+        <span>Quantity</span>
+        <input type="number" min="1" max="99" [(ngModel)]="quantity" />
+      </label>
+      <button mat-raised-button color="primary" (click)="addToCart()">
+        <mat-icon>add_shopping_cart</mat-icon>Add to cart
+      </button>
+    </div>
+    <p class="reservationNote">
+      <mat-icon>info</mat-icon>Adding an item does not reserve inventory. Availability is confirmed
+      during checkout.
+    </p>
+  </section>
+</article>
+
+<section class="specifications" *ngIf="!loading && product as item">
+  <div>
+    <span class="eyebrow">Product information</span>
+    <h2>Specifications</h2>
+    <p>The details supplied by the catalog owner for this product.</p>
+  </div>
+  <dl *ngIf="item.attributes && (item.attributes | keyvalue).length; else noSpecifications">
+    <div *ngFor="let attribute of item.attributes | keyvalue">
+      <dt>{{ attribute.key }}</dt>
+      <dd>{{ attribute.value }}</dd>
+    </div>
+  </dl>
+  <ng-template #noSpecifications
+    ><p class="noSpecifications">No additional specifications have been provided.</p></ng-template
+  >
+</section>
